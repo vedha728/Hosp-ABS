@@ -124,6 +124,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+from decouple import config
 @csrf_exempt
 def login_receptionist(request):
     if request.method == "POST":
@@ -132,8 +133,10 @@ def login_receptionist(request):
         password = data.get('password')
         passkey = data.get('passkey')
         # Replace with your real receptionist credential validation!
-        if passkey == "7874" and username == "admin" and password == "admin123":
-            # return whatever info you want to store for the receptionist session
+        RECEPTIONIST_PASSKEY = config('RECEPTIONIST_PASSKEY')
+        RECEPTIONIST_USERNAME = config('RECEPTIONIST_USERNAME')
+        RECEPTIONIST_PASSWORD = config('RECEPTIONIST_PASSWORD')
+        if passkey == RECEPTIONIST_PASSKEY and username == RECEPTIONIST_USERNAME and password == RECEPTIONIST_PASSWORD:            # return whatever info you want to store for the receptionist session
             return JsonResponse({'success': True, 'username': username})
         else:
             return JsonResponse({'error': 'Invalid credentials'}, status=401)

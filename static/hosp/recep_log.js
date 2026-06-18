@@ -1,6 +1,5 @@
 console.log("recep_log.js loaded");
 let appointments = [];
-const RECEPTION_CREDENTIALS = { username: 'admin', password: 'admin123' };
 let calendarYear = (new Date()).getFullYear();
 let calendarMonth = (new Date()).getMonth();
 let receptionistSelectedDate = null;

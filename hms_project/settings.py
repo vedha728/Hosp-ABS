@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,8 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%qul@-55=h!jv@0kn_me($1d39935y_^4l_di#1#66xml_7(oc'
-
+SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -78,7 +78,7 @@ DATABASES = {
         'NAME':'django_vedha',
         'HOST':'localhost',
         'USER':'root',
-        'PASSWORD':'vedharoot',
+        'PASSWORD': config('DB_PASSWORD'),
         'PORT':'3306',
     }
 }
