@@ -36,3 +36,12 @@ class MedicalRecord(models.Model):
 
     def __str__(self):
         return f"{self.patient.email} - {self.file.name}"
+
+class Feedback(models.Model):
+    doctor_or_service = models.CharField(max_length=100)
+    feedback_text = models.TextField()
+    rating = models.IntegerField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.doctor_or_service} - {self.rating}/5 stars"

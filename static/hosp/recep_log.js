@@ -531,3 +531,48 @@ function receptionistLogout() {
   window.location.href = '/';
   // window.close(); // Only works sometimes, see previous notes
 }
+
+// --- Patient Feedback ---
+async function loadFeedbacks() {
+  const container = document.getElementById('receptionFeedbackList');
+  if (!container) return;
+  try {
+    const response = await fetch('/api/get-feedbacks/');
+    const data = await response.json();
+    const feedbacks = data.feedbacks || [];
+    if (feedbacks.length === 0) {
+      container.innerHTML = '<em class="text-muted">No feedback submitted yet.</em>';
+      return;
+    }
+    container.innerHTML = feedbacks.map(f => `
+      <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start">
+        <div>
+          <strong>${f.doctor}</strong>
+          <span class="text-warning ms-2">${'★'.repeat(f.rating)}${'☆'.repeat(5 - f.rating)}</span>
+          <small class="text-muted ms-2">${f.submitted_at}</small>
+          <p class="mb-0 mt-1">${f.text}</p>
+        </div>
+        <span class="badge bg-${f.rating >= 4 ? 'success' : f.rating === 3 ? 'warning' : 'danger'} ms-3">
+          ${f.rating}/5
+        </span>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<em class="text-danger">Could not load feedback.</em>';
+  }
+}
+
+// Auto-load feedback whenever receptionist dashboard is shown
+const _origShowSection = typeof showSection === 'function' ? showSection : null;
+document.addEventListener('DOMContentLoaded', () => {
+  // Load feedbacks when dashboard becomes visible
+  const dashboard = document.getElementById('receptionDashboard');
+  if (dashboard) {
+    const observer = new MutationObserver(() => {
+      if (dashboard.style.display !== 'none') {
+        loadFeedbacks();
+      }
+    });
+    observer.observe(dashboard, { attributes: true, attributeFilter: ['style'] });
+  }
+});

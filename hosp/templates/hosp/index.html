@@ -94,31 +94,16 @@
   </div>
 </div>
 
-<!-- Ambulance Booking Section -->
+<!-- Emergency / Ambulance Section -->
 <div class="container mt-5">
-  <div class="card">
-    <div class="card-body">
-      <h4 class="mb-3">Book an Ambulance</h4>
-      <form id="ambulanceBookingForm">
-        <div class="mb-3">
-          <label for="ambulancePatientName" class="form-label">Patient Name</label>
-          <input type="text" class="form-control" id="ambulancePatientName" required />
-        </div>
-        <div class="mb-3">
-          <label for="pickupAddress" class="form-label">Pickup Address</label>
-          <textarea class="form-control" id="pickupAddress" rows="2" required></textarea>
-        </div>
-        <div class="mb-3">
-          <label for="ambulanceContact" class="form-label">Contact Number</label>
-          <input type="tel" class="form-control" id="ambulanceContact" required pattern="[0-9]{10,15}" />
-        </div>
-        <div class="mb-3">
-          <label for="bookingReason" class="form-label">Reason for Booking</label>
-          <input type="text" class="form-control" id="bookingReason" required />
-        </div>
-        <button type="submit" class="btn btn-danger">Book Ambulance</button>
-        <div id="ambulanceBookingMsg" class="mt-2"></div>
-      </form>
+  <div class="card border-danger">
+    <div class="card-body text-center">
+      <h4 class="text-danger mb-3">🚑 Emergency / Ambulance</h4>
+      <p class="fs-5">For medical emergencies, please call the national ambulance helpline immediately:</p>
+      <a href="tel:108" class="btn btn-danger btn-lg mb-3">📞 Call 108 — Free Ambulance</a>
+      <p class="text-muted mb-1">Or reach us directly at:</p>
+      <a href="tel:8248917874" class="btn btn-outline-danger">📞 8248917874 — HealthPoint Clinic</a>
+      <p class="mt-3 text-muted small">⚠️ Do not wait — call immediately in any life-threatening situation.</p>
     </div>
   </div>
 </div>
@@ -129,37 +114,6 @@
 </footer>
 
 
-<script>
-// Emergency Contact Form Handler
-const emergencyContactForm = document.getElementById('emergencyContactForm');
-if (emergencyContactForm) {
-  emergencyContactForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('emergencyName').value;
-    const relationship = document.getElementById('emergencyRelationship').value;
-    const phone = document.getElementById('emergencyPhone').value;
-    // Save to localStorage (replace with backend integration if needed)
-    localStorage.setItem('emergencyContact', JSON.stringify({ name, relationship, phone }));
-    document.getElementById('emergencyContactMsg').innerHTML = '<span class="text-success">Emergency contact saved!</span>';
-  });
-}
-// Ambulance Booking Form Handler
-const ambulanceBookingForm = document.getElementById('ambulanceBookingForm');
-if (ambulanceBookingForm) {
-  ambulanceBookingForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const patientName = document.getElementById('ambulancePatientName').value;
-    const pickup = document.getElementById('pickupAddress').value;
-    const contact = document.getElementById('ambulanceContact').value;
-    const reason = document.getElementById('bookingReason').value;
-    // Save booking to localStorage (replace with backend integration if needed)
-    const bookings = JSON.parse(localStorage.getItem('ambulanceBookings') || '[]');
-    bookings.push({ patientName, pickup, contact, reason, time: new Date().toISOString() });
-    localStorage.setItem('ambulanceBookings', JSON.stringify(bookings));
-    document.getElementById('ambulanceBookingMsg').innerHTML = '<span class="text-success">Ambulance booked! We will contact you soon.</span>';
-    ambulanceBookingForm.reset();
-  });
-}
 </script>
 <!-- Feedback & Ratings Section -->
 <div class="container mt-5 mb-5">
@@ -217,22 +171,32 @@ if (starRatingDiv && feedbackRatingInput) {
   });
 }
 
-function renderFeedbackList() {
-  const feedbacks = JSON.parse(localStorage.getItem('clinicFeedbacks') || '[]');
-  if (feedbacks.length === 0) {
-    feedbackListDiv.innerHTML = '<em>No feedback yet.</em>';
-    return;
+// Load and display feedbacks from backend
+async function renderFeedbackList() {
+  try {
+    const response = await fetch('/api/get-feedbacks/');
+    const data = await response.json();
+    const feedbacks = data.feedbacks || [];
+    if (feedbacks.length === 0) {
+      feedbackListDiv.innerHTML = '<em>No feedback yet. Be the first!</em>';
+      return;
+    }
+    feedbackListDiv.innerHTML = feedbacks.map(f => `
+      <div class="border rounded p-2 mb-2">
+        <strong>${f.doctor}</strong>
+        <span class="text-warning">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5 - f.rating)}</span>
+        <small class="text-muted ms-2">${f.submitted_at}</small><br/>
+        <span>${f.text}</span>
+      </div>
+    `).join('');
+  } catch (err) {
+    feedbackListDiv.innerHTML = '<em class="text-muted">Could not load feedback.</em>';
   }
-  feedbackListDiv.innerHTML = feedbacks.reverse().map(f => `
-    <div class="border rounded p-2 mb-2">
-      <strong>${f.doctor}</strong> <span class="text-warning">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5-f.rating)}</span><br/>
-      <span>${f.text}</span>
-    </div>
-  `).join('');
 }
 
+// Submit feedback to backend
 if (feedbackForm) {
-  feedbackForm.addEventListener('submit', function(e) {
+  feedbackForm.addEventListener('submit', async function(e) {
     e.preventDefault();
     const doctor = document.getElementById('feedbackDoctor').value.trim();
     const text = document.getElementById('feedbackText').value.trim();
@@ -241,14 +205,25 @@ if (feedbackForm) {
       feedbackMsg.innerHTML = '<span class="text-danger">Please fill all fields and select a rating.</span>';
       return;
     }
-    const feedbacks = JSON.parse(localStorage.getItem('clinicFeedbacks') || '[]');
-    feedbacks.push({ doctor, text, rating });
-    localStorage.setItem('clinicFeedbacks', JSON.stringify(feedbacks));
-    feedbackMsg.innerHTML = '<span class="text-success">Thank you for your feedback!</span>';
-    feedbackForm.reset();
-    feedbackRatingInput.value = 0;
-    starRatingDiv.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
-    renderFeedbackList();
+    try {
+      const response = await fetch('/api/save-feedback/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doctor, text, rating })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        feedbackMsg.innerHTML = '<span class="text-success">Thank you for your feedback!</span>';
+        feedbackForm.reset();
+        feedbackRatingInput.value = 0;
+        starRatingDiv.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
+        await renderFeedbackList();  // Refresh list from backend
+      } else {
+        feedbackMsg.innerHTML = `<span class="text-danger">${result.error || 'Failed to submit.'}</span>`;
+      }
+    } catch (err) {
+      feedbackMsg.innerHTML = '<span class="text-danger">Network error. Please try again.</span>';
+    }
   });
 }
 
@@ -259,8 +234,6 @@ window.addEventListener('DOMContentLoaded', () => {
     alert('Email verified successfully! You can now log in.');
   }
 });
-
-
 </script>
 
   <div style="margin-bottom: 100px;">

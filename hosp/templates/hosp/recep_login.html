@@ -198,6 +198,17 @@
       </div>
       <div id="appointmentsList" class="mt-4"></div>
     </div>
+
+    <!-- Patient Feedback Panel -->
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">⭐ Patient Feedback</h4>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadFeedbacks()">↻ Refresh</button>
+      </div>
+      <div id="receptionFeedbackList">
+        <em class="text-muted">Loading feedback...</em>
+      </div>
+    </div>
   </div>
 
   <script src="{% static 'hosp/recep_log.js' %}"></script>

@@ -26,6 +26,8 @@ urlpatterns = [
     path('api/notify-reception/', views.notify_reception),
     path('api/receptionist-reject/', views.receptionist_reject_appointment, name='receptionist_reject'),
     path('api/logout/', views.logout_patient, name='logout_patient'),
+    path('api/save-feedback/', views.save_feedback, name='save_feedback'),
+    path('api/get-feedbacks/', views.get_feedbacks, name='get_feedbacks'),
     #Email verification
     #path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
 ]
