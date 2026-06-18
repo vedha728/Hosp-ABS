@@ -2,16 +2,17 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import PatientSerializer
-from .models import MedicalRecord, Patient
+from .models import MedicalRecord, Patient, Appointment
 from django.contrib.auth.hashers import check_password
 from django.shortcuts import render
 from django.core.mail import send_mail
 from django.conf import settings
-from .utils import generate_verification_token
-from .utils import verify_verification_token
-from .models import Appointment
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from .utils import generate_verification_token, verify_verification_token
+from decouple import config
+import json
+from datetime import datetime, timedelta
 
 def home(request):
     return render(request, 'hosp/index.html')
@@ -120,11 +121,6 @@ def upload_medical_record(request):
     MedicalRecord.objects.create(patient=patient, file=file)
     return Response({'message': 'File uploaded successfully.'})
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-
-from decouple import config
 @csrf_exempt
 def login_receptionist(request):
     if request.method == "POST":
@@ -147,11 +143,6 @@ def patient_login_view(request):
 @csrf_exempt
 def recep_login_view(request):
     return render(request, 'hosp/recep_login.html')
-
-from django.http import JsonResponse
-from .models import Appointment
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 @csrf_exempt
 def get_appointments(request):
@@ -183,10 +174,6 @@ def get_appointments(request):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Appointment, Patient
-
 @api_view(['POST'])
 def cancel_appointment(request):
     email = request.data.get('email')
@@ -208,14 +195,6 @@ def cancel_appointment(request):
         return Response({'error': 'Appointment not found.'}, status=404)
     except Exception as e:
         return Response({'error': str(e)}, status=400)
-from datetime import datetime, timedelta
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
-from datetime import datetime, timedelta
-from .models import Appointment
-
 @csrf_exempt
 def get_all_appointments(request):
     if request.method == "POST":
@@ -256,11 +235,6 @@ def get_all_appointments(request):
         except Exception as e:
             return JsonResponse({"appointments": [], "error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request"}, status=405)
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
-from .models import Appointment
 
 @csrf_exempt
 def update_appointment_status(request):

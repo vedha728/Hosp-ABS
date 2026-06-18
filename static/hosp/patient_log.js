@@ -21,20 +21,6 @@ function showSection(sectionId) {
   }
 }
 function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
     const cookies = document.cookie.split(';');
@@ -285,59 +271,6 @@ async function fetchPatientProfile(email) {
   }
 }
 
-function loadProfile() {
-  // Load current patient and patients array from localStorage
-  const current = JSON.parse(localStorage.getItem('currentPatient'));
-  let patientsArr = JSON.parse(localStorage.getItem('patients')) || [];
-  let found = patientsArr.find(p => p.email === current.email);
-  let patient = found ? found : current;
-
-  // Sync localStorage currentPatient with latest patient info
-  localStorage.setItem('currentPatient', JSON.stringify(patient));
-
-  // Fill profile form fields if profile exists
-  if (patient.profile) {
-    document.getElementById('firstName').value = patient.profile.firstName || '';
-    document.getElementById('lastName').value = patient.profile.lastName || '';
-    document.getElementById('age').value = patient.profile.age || '';
-    document.getElementById('bloodGroup').value = patient.profile.bloodGroup || '';
-    document.getElementById('mobile').value = patient.profile.mobile || '';
-
-    // Disable editing by default if profile exists
-    setProfileFieldsReadonly(true);
-    document.getElementById('saveProfileBtn').disabled = true;
-    document.getElementById('editProfileBtn').disabled = false;
-  } else {
-    // No profile yet - enable inputs for entering data
-    document.getElementById('firstName').value = '';
-    document.getElementById('lastName').value = '';
-    document.getElementById('age').value = '';
-    document.getElementById('bloodGroup').value = '';
-    document.getElementById('mobile').value = '';
-
-    setProfileFieldsReadonly(false);
-    document.getElementById('saveProfileBtn').disabled = false;
-    document.getElementById('editProfileBtn').disabled = true;
-  }
-
-  // Show notification if exists
-  if (patient && patient.notification) {
-    const noteDiv = document.getElementById('notification');
-    noteDiv.innerText = patient.notification;
-    noteDiv.style.display = 'block';
-
-    // Clear notification after showing
-    delete patient.notification;
-    patientsArr = patientsArr.map(p => p.email === patient.email ? patient : p);
-    localStorage.setItem('patients', JSON.stringify(patientsArr));
-    localStorage.setItem('currentPatient', JSON.stringify(patient));
-  } else {
-    document.getElementById('notification').style.display = 'none';
-  }
-
-  // Load appointments for patient
-  loadPatientAppointments();
-}
 async function saveProfile(event) {
   event.preventDefault();
 
@@ -388,20 +321,6 @@ async function saveProfile(event) {
   } catch (error) {
     alert('Error saving profile: ' + error.message);
   }
-}
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
 }
 
 // Enable editing — make form inputs editable, enable save button, disable edit button
