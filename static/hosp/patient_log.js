@@ -573,3 +573,83 @@ document.addEventListener('DOMContentLoaded', function(){
   const dateField = document.getElementById('appointmentDate');
   if (dateField && dateField.value) updateSlotStatusesForSelectedDate();
 });
+
+// --- Feedback & Ratings (inside patient dashboard) ---
+const feedbackForm = document.getElementById('feedbackForm');
+const feedbackListDiv = document.getElementById('feedbackList');
+const feedbackMsg = document.getElementById('feedbackMsg');
+const starRatingDiv = document.getElementById('starRating');
+const feedbackRatingInput = document.getElementById('feedbackRating');
+
+// Star rating click logic
+if (starRatingDiv && feedbackRatingInput) {
+  starRatingDiv.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+      const rating = this.getAttribute('data-value');
+      feedbackRatingInput.value = rating;
+      starRatingDiv.querySelectorAll('.star').forEach(s => {
+        s.style.color = s.getAttribute('data-value') <= rating ? '#ffc107' : '#ccc';
+      });
+    });
+  });
+}
+
+// Load feedbacks from backend
+async function renderFeedbackList() {
+  if (!feedbackListDiv) return;
+  try {
+    const response = await fetch('/api/get-feedbacks/');
+    const data = await response.json();
+    const feedbacks = data.feedbacks || [];
+    if (feedbacks.length === 0) {
+      feedbackListDiv.innerHTML = '<em class="text-muted">No feedback yet. Be the first!</em>';
+      return;
+    }
+    feedbackListDiv.innerHTML = feedbacks.map(f => `
+      <div class="border rounded p-2 mb-2">
+        <strong>${f.doctor}</strong>
+        <span class="text-warning ms-1">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5 - f.rating)}</span>
+        <small class="text-muted ms-2">${f.submitted_at}</small><br/>
+        <span>${f.text}</span>
+      </div>
+    `).join('');
+  } catch (err) {
+    feedbackListDiv.innerHTML = '<em class="text-muted">Could not load feedback.</em>';
+  }
+}
+
+// Submit feedback to backend
+if (feedbackForm) {
+  feedbackForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const doctor = document.getElementById('feedbackDoctor').value.trim();
+    const text = document.getElementById('feedbackText').value.trim();
+    const rating = parseInt(feedbackRatingInput.value, 10);
+    if (!doctor || !text || !rating) {
+      feedbackMsg.innerHTML = '<span class="text-danger">Please fill all fields and select a star rating.</span>';
+      return;
+    }
+    try {
+      const response = await fetch('/api/save-feedback/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ doctor, text, rating })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        feedbackMsg.innerHTML = '<span class="text-success">Thank you for your feedback!</span>';
+        feedbackForm.reset();
+        feedbackRatingInput.value = 0;
+        if (starRatingDiv) starRatingDiv.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
+        await renderFeedbackList();
+      } else {
+        feedbackMsg.innerHTML = `<span class="text-danger">${result.error || 'Failed to submit.'}</span>`;
+      }
+    } catch (err) {
+      feedbackMsg.innerHTML = '<span class="text-danger">Network error. Please try again.</span>';
+    }
+  });
+}
+
+// Load feedback on page load
+document.addEventListener('DOMContentLoaded', renderFeedbackList);
