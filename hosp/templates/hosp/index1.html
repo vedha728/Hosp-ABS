@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HEALTHPOINT CLINIC</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Backend integration will be added here -->
+  <style>
+    body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+    .hero-section {
+      background: linear-gradient(to right, #007bff, #6610f2);
+      color: white;
+      padding: 4rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+    .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0; }
+    .dashboard { display: none; }
+    .language-switcher {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 120px;
+    }
+    .clinic-info {
+      background-color: #ffffff;
+      padding: 2rem;
+      margin: 2rem auto;
+      text-align: center;
+      max-width: 800px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    footer {
+      background-color: #343a40;
+      color: #fff;
+      padding: 1.5rem 0;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Intro Page -->
+<div id="introPage">
+  <div class="hero-section">
+    <h1>WELCOME TO HEALTHPOINT CLINIC</h1>
+  </div>
+
+  <!-- About the Clinic -->
+  <div class="clinic-info">
+    <h3>About HEALTHPOINT CLINIC</h3>
+    <p>Established in 2010 in the culturally rich city of Thanjavur, Tamil Nadu, HealthPoint Clinic is dedicated to delivering quality healthcare with compassion and care.</p>
+    <p>Our clinic offers a wide range of services including General Checkups, Blood Tests, Diabetes Testing, and PT Scans ,etc. Equipped with modern technology and supported by experienced professionals, we strive to make healthcare accessible and affordable to all.</p>
+    <p>Healthpoint Clinic stands as a symbol of trust, providing patient-centered care in a safe and welcoming environment.</p>
+  </div>
+
+  <div class="text-center mb-4">
+    <button onclick="showSection('patientAuth')" class="btn btn-primary btn-lg mx-2">Patient Login</button>
+    <button onclick="showSection('receptionAuth')" class="btn btn-secondary btn-lg mx-2">Receptionist Login</button>
+  </div>
+  <div class="container mb-4">
+    <div class="alert alert-warning border border-3 border-danger fw-bold fs-5 py-3" style="background: #fffbe7;">
+      <span class="text-danger">Notice:</span><br>
+      If some server problem occurs, contact <b>healthpointclinic@gmail.com</b> or phone: <b>+91 85478 96547</b> / <b>+91 88832 40140</b>.<br>
+      When emailing, please specify what service you want and include your personal information.<br>
+      <span class="text-primary">You can also contact us directly by phone for urgent assistance.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Authentication -->
+<div id="patientAuth" class="container mt-5 dashboard">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-center">Patient Login</h3>
+          <form onsubmit="handlePatientLogin(event)">
+            <input type="email" id="loginEmail" class="form-control mb-3" placeholder="Email" required>
+            <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary w-100" id="patientLoginBtn">Login</button>
+          </form>
+          <p class="text-center mt-3">New User? 
+            <a href="#" onclick="showSection('patientSignup')">Create Account</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Signup -->
+<div id="patientSignup" class="container mt-5 dashboard">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-center">Create Account</h3>
+          <form onsubmit="handleSignup(event)">
+            <input type="hidden" id="csrftoken" value="{{ csrf_token }}">
+            <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
+            <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
+            <button type="submit" class="btn btn-success w-100" id="patientSignupBtn">Sign Up</button>
+          </form>
+          <p class="text-center mt-3">
+            <a href="#" onclick="showSection('patientAuth')">Already have an account? Login</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Receptionist Authentication -->
+<div id="receptionAuth" class="container mt-5 dashboard">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h3 class="text-center">Receptionist Login</h3>
+          <div class="alert alert-warning text-center mb-3">
+            Only authorized personnel can access
+          </div>
+          <form onsubmit="handleReceptionLogin(event)">
+            <div class="mb-3">
+              <label for="receptionPasskey" class="form-label">Enter Passkey</label>
+              <input type="password" id="receptionPasskey" class="form-control" maxlength="4" required>
+              <div id="passkeyError" class="text-danger mt-1" style="display: none;">Incorrect passkey. Please try again.</div>
+            </div>
+            <div id="receptionCredentials" style="display: none;">
+              <div class="mb-3">
+                <label for="receptionUser" class="form-label">Username</label>
+                <input type="text" id="receptionUser" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="receptionPass" class="form-label">Password</label>
+                <input type="password" id="receptionPass" class="form-control" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100" id="receptionLoginBtn">Login</button>
+          </form>
+          <div class="text-center mt-3">
+            <a href="#" onclick="showSection('introPage')" class="btn btn-outline-secondary">Back to Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Add Appointment Modal -->
+<div class="modal" tabindex="-1" id="addAppointmentModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Appointment</h5>
+        <button type="button" class="btn-close" onclick="closeAddAppointmentModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addAppointmentForm">
+          <div class="mb-2">
+            <label class="form-label">Patient Email (existing or new)</label>
+            <input type="email" id="modalPatientEmail" autocomplete="email" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Service</label>
+            <select id="modalServiceType" class="form-select" required>
+              <option value="">Select Service</option>
+              <option>General Checkup</option>
+              <option>Eye Care</option>
+              <option>Dental Care</option>
+              <option>Blood test</option>
+              <option>Diabetes test</option>
+              <option>X-ray</option>
+              <option>PT scan</option>
+              <option>Vaccination</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Date</label>
+            <input type="date" id="modalAppointmentDate" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Time</label>
+            <select id="modalAppointmentTime" class="form-select w-50" required>
+              <option value="">Select Time</option>
+              <option value="09:00">9 AM</option>
+              <option value="10:00">10 AM</option>
+              <option value="11:00">11 AM</option>
+              <option value="12:00">12 PM</option>
+              <option value="14:00">2 PM</option>
+              <option value="15:00">3 PM</option>
+              <option value="16:00">4 PM</option>
+              <option value="17:00">5 PM</option>
+              <option value="18:00">6 PM</option>
+              <option value="19:00">7 PM</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success">Book Appointment</button>
+        </form>
+        <div id="addAppointmentStatus" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Receptionist Dashboard -->
+<div id="receptionDashboard" class="container mt-5 dashboard" style="display:none;">
+  <h2>Appointment Management</h2>
+  <div class="mb-3 d-flex justify-content-between align-items-center">
+    <div>
+      <button type="button" class="btn btn-primary" onclick="showAddAppointmentModal()">+ Add Appointment</button>
+    </div>
+    <div id="calendarContainer"></div>
+  </div>
+  <div id="receptionistNotifications" class="mt-4">
+    <h4>Notifications</h4>
+    <div id="notificationsList"></div>
+    <button onclick="clearReceptionistNotifications()" class="btn btn-danger mt-3">Clear Notifications</button>
+  </div>  
+  <div id="appointmentsList" class="mt-4"></div>
+</div>
+
+<!-- Patient Dashboard -->
+<div id="patientDashboard" class="container mt-5 dashboard">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Patient Dashboard</h2>
+    <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+  </div>
+  <div class="card mt-4">
+    <div class="card-body">
+        <div class="alert alert-info" id="notification" style="display: none;"></div>
+        <h4>Your Appointments</h4>
+        <div id="patientAppointments"></div>
+    </div>
+</div>
+
+<!-- Profile Section -->
+<div class="card">
+  <div class="card-body">
+    <h4>Personal Details</h4>
+      <form onsubmit="saveProfile(event)">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <input type="text" id="firstName" autocomplete="given-name"class="form-control " placeholder="First Name" required>
+          </div>
+          <div class="col-md-3">
+              <input type="text" id="lastName" autocomplete="family-name" class="form-control" placeholder="Last Name" required>
+          </div> 
+          <div class="col-md-3">
+            <input type="number" id="age" class="form-control" placeholder="Age" required>
+          </div>
+          <div class="col-md-3">
+            <select id="bloodGroup" class="form-select" required>
+              <option value="">Blood Group</option>
+              <option>A+</option><option>A1+</option><option>B+</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <input type="tel" id="mobile" class="form-control w-50" placeholder="Mobile Number" required>
+          </div>
+          <div class="col-12">
+             <button type="button" id="editProfileBtn" onclick="enableProfileEditing()">Edit Profile</button>
+              <button type="submit" id="saveProfileBtn" disabled>Save Profile</button>
+          </div>
+        </div>
+      </form>
+  </div>
+</div>
+
+<!-- Upload Past Medical Records -->
+<div class="card mt-4">
+  <div class="card-body">
+    <h4>Upload Your Past Medical Records</h4>
+    <form id="medicalRecordForm" enctype="multipart/form-data">
+      <div class="mb-3">
+        <input type="file" id="medicalRecordFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+        <div class="form-text">Max file size: 1MB. Accepted formats: PDF, JPG, PNG, DOC, DOCX.</div>
+      </div>
+      <button type="submit" class="btn btn-primary">Upload</button>
+      <div id="uploadStatus" class="mt-2"></div>
+    </form>
+  </div>
+</div>
+
+<!-- Appointment Booking -->
+<div class="card mt-4">
+  <div class="card-body">
+      <h4>Book Appointment</h4>
+      <form onsubmit="bookAppointment(event)">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <select id="serviceType" class="form-select" required>
+              <option value="">Select Service</option>
+              <option>General Checkup</option>
+              <option>Eye Care</option>
+              <option>Dental Care</option>
+              <option>Blood test</option>
+              <option>Diabetes test</option>
+              <option>X-ray</option>
+              <option>PT scan</option>
+              <option>Vaccination</option>
+              
+            </select>
+          </div>
+          <div class="col-md-12">
+            <label for="reasonForVisit" class="form-label mt-2">Reason for Visit</label>
+            <textarea id="reasonForVisit" class="form-control" rows="3" placeholder="Describe your reason for visiting the clinic" required></textarea>
+          </div>          
+          <div class="mb-3">
+            <input type="date" id="appointmentDate" class="form-control w-50" required>
+          </div>
+          <div class="mb-3">
+            <select id="appointmentTime" class="form-select w-50" required>
+              <option value="">Select Time</option>
+              <option value="09:00">9 AM</option>
+              <option value="10:00">10 AM</option>
+              <option value="11:00">11 AM</option>
+              <option value="12:00">12 PM</option>
+              <option value="14:00">2 PM</option>
+              <option value="15:00">3 PM</option>
+              <option value="16:00">4 PM</option>
+              <option value="17:00">5 PM</option>
+              <option value="18:00">6 PM</option>
+              <option value="19:00">7 PM</option>
+            </select>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-success w-30">Book Appointment</button>
+          </div>
+        </div>
+      </form>
+  </div>
+</div>
+
+
+<!-- Pharmacy Section (inside dashboard) -->
+<div id="pharmacySection" class="card mt-4">
+  <div class="card-body">
+      <h4>Pharmacy</h4>
+      <form id="pharmacyForm">
+        <div class="mb-3">
+          <label for="pharmacyAddress" class="form-label">Delivery Address</label>
+          <textarea id="pharmacyAddress" class="form-control" rows="2" placeholder="Enter your address" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="pharmacyPincode" class="form-label">Pin Code</label>
+          <input type="text" id="pharmacyPincode" class="form-control w-50" placeholder="Pin Code" required pattern="\d{6}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Select Medicines (based on your selected service):</label>
+          <div id="medicineList"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Place Order</button>
+        <div id="pharmacyOrderStatus" class="mt-2"></div>
+      </form>
+      <div id="pharmacyPayment" class="mt-3" style="display:none;">
+        <h5>Payment</h5>
+        <div class="mb-2">
+          <label class="form-label">Select Payment Method:</label><br>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="upiOption" value="UPI" checked>
+            <label class="form-check-label" for="upiOption">UPI</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="paymentMethod" id="netbankingOption" value="Netbanking">
+            <label class="form-check-label" for="netbankingOption">Netbanking</label>
+          </div>
+        </div>
+        <div id="upiSection" class="mb-2">
+          <label for="upiId" class="form-label">Enter UPI ID:</label>
+          <input type="text" id="upiId" class="form-control w-50" placeholder="example@upi">
+        </div>
+        <div id="netbankingSection" class="mb-2" style="display:none;">
+          <label for="bankName" class="form-label">Select Bank:</label>
+          <select id="bankName" class="form-select w-50">
+            <option value="">Choose Bank</option>
+            <option>City Union Bank</option>
+            <option>Canara Bank</option>
+            <option>State Bank of India</option>
+            <option>IOB Bank</option>
+          </select>
+          <div id="netbankingExtra" style="display:none;">
+            <label for="bankPhone" class="form-label mt-2">Phone Number (linked to bank)</label>
+            <input type="text" id="bankPhone" class="form-control w-50" placeholder="Enter 10-digit phone number">
+            <label for="bankOtp" class="form-label mt-2">OTP</label>
+            <input type="text" id="bankOtp" class="form-control w-50" placeholder="Enter 6-digit OTP">
+          </div>
+        </div>
+        <button id="payBtn" class="btn btn-success">Pay</button>
+        <div id="paymentStatus" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Ambulance Booking Section -->
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="mb-3">Book an Ambulance</h4>
+      <form id="ambulanceBookingForm">
+        <div class="mb-3">
+          <label for="ambulancePatientName" class="form-label">Patient Name</label>
+          <input type="text" class="form-control" id="ambulancePatientName" required />
+        </div>
+        <div class="mb-3">
+          <label for="pickupAddress" class="form-label">Pickup Address</label>
+          <textarea class="form-control" id="pickupAddress" rows="2" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="ambulanceContact" class="form-label">Contact Number</label>
+          <input type="tel" class="form-control" id="ambulanceContact" required pattern="[0-9]{10,15}" />
+        </div>
+        <div class="mb-3">
+          <label for="bookingReason" class="form-label">Reason for Booking</label>
+          <input type="text" class="form-control" id="bookingReason" required />
+        </div>
+        <button type="submit" class="btn btn-danger">Book Ambulance</button>
+        <div id="ambulanceBookingMsg" class="mt-2"></div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Footer -->
+<footer>
+  <p>Contact: 8248917874 | Address: Thanjavur, Tamil Nadu</p>
+  <p>&copy; 2025 HEALTHPOINT CLINIC. All rights reserved.</p>
+</footer>
+
+<script>
+let calendarYear = (new Date()).getFullYear();
+let calendarMonth = (new Date()).getMonth();
+let receptionistSelectedDate = null;
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+function showSection(sectionId) {
+  // Hide all dashboards
+  document.querySelectorAll('.dashboard').forEach(div => div.style.display = 'none');
+  // Show the requested section
+  const section = document.getElementById(sectionId);
+  if (section) {
+    section.style.display = 'block';
+  } else {
+    console.error("Section not found:", sectionId);
+  }
+
+  // Extra logic for dashboards
+  if (sectionId === 'patientDashboard') {
+    showPatientNotification();
+    loadPatientAppointments();
+  }
+  if (sectionId === 'receptionDashboard') {
+    renderReceptionistAppointments();
+    renderCalendar(receptionistSelectedDate);
+  }
+}
+// Clear existing user data for a fresh start
+localStorage.removeItem('patients');
+localStorage.removeItem('currentPatient');
+sessionStorage.removeItem('currentPatientId');
+
+// Initialize fresh storage
+let patients = [];
+let appointments = [];
+let doctorAssignments = {};
+
+async function handleSignup(event) {
+  event.preventDefault();
+  const signupBtn = document.getElementById('patientSignupBtn');
+  signupBtn.disabled = true;
+  signupBtn.innerHTML = `<span class='spinner-border spinner-border-sm'></span> Signing up...`;
+
+  const formData = new FormData(event.target);
+  const email = formData.get('email').trim();
+  const password = formData.get('password');
+
+  try {
+    const csrftoken = getCookie('csrftoken');
+    const response = await fetch('/api/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json','X-CSRFToken': csrftoken },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(Object.values(errorData).flat().join(' '));
+    }
+
+    const data = await response.json();
+    alert(data.message || 'Registration successful! Please check your email to verify your account.');
+    event.target.reset();
+    showSection('patientAuth'); // Navigate to login page
+
+  } catch (error) {
+    alert('Error: ' + error.message);
+  } finally {
+    signupBtn.disabled = false;
+    signupBtn.innerHTML = 'Sign Up';
+  }
+}
+async function handlePatientLogin(event) {
+  event.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const loginBtn = document.getElementById('patientLoginBtn');
+  loginBtn.disabled = true;
+  loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Logging in...';
+  try {
+    const csrftoken = getCookie('csrftoken');
+    const response = await fetch('/api/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Login failed');
+    }
+    const data = await response.json();
+    // Save minimal user info like email or token if needed
+    localStorage.setItem('currentPatient', JSON.stringify(data));
+
+    // Show patient dashboard
+    showSection('patientDashboard');
+
+    // Fetch profile from backend, then load profile UI
+    await fetchPatientProfile(email);
+
+    // Load any additional data like appointments
+    loadPatientAppointments();
+
+    event.target.reset();
+  } catch (error) {
+      if (error.message === 'User not found'){
+         alert('No account exists for this email. Please create a new account first using the Sign Up option.');
+      } else{
+        alert('Error: ' + error.message);
+      }
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Login';
+  }
+}
+function populateProfileForm(profile) {
+  document.getElementById('firstName').value = profile.first_name || '';
+  document.getElementById('lastName').value = profile.last_name || '';
+  document.getElementById('age').value = profile.age || '';
+  document.getElementById('bloodGroup').value = profile.blood_group || '';
+  document.getElementById('mobile').value = profile.mobile || '';
+
+  // If profile exists, make inputs readonly and enable edit button
+  if (profile.first_name || profile.last_name) {
+    setProfileFieldsReadonly(true);
+    document.getElementById('saveProfileBtn').disabled = true;
+    document.getElementById('editProfileBtn').disabled = false;
+  } else {
+    // New or empty profile, inputs editable and save enabled
+    setProfileFieldsReadonly(false);
+    document.getElementById('saveProfileBtn').disabled = false;
+    document.getElementById('editProfileBtn').disabled = true;
+  }
+}
+
+async function fetchPatientProfile(email) {
+  const csrftoken = getCookie('csrftoken');
+  try {
+    const response = await fetch('/api/get-profile/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify({ email: email }),
+    });
+
+    if (response.ok) {
+      const profile = await response.json();
+      // Call a function to populate your profile form inputs with this data
+      populateProfileForm(profile);
+    } else {
+      // No profile found â€” keep profile inputs empty and editable
+      setProfileFieldsReadonly(false);
+      document.getElementById('saveProfileBtn').disabled = false;
+      document.getElementById('editProfileBtn').disabled = true;
+    }
+  } catch (error) {
+    alert('Failed to load profile: ' + error.message);
+  }
+}
+
+function loadProfile() {
+  // Load current patient and patients array from localStorage
+  const current = JSON.parse(localStorage.getItem('currentPatient'));
+  let patientsArr = JSON.parse(localStorage.getItem('patients')) || [];
+  let found = patientsArr.find(p => p.email === current.email);
+  let patient = found ? found : current;
+
+  // Sync localStorage currentPatient with latest patient info
+  localStorage.setItem('currentPatient', JSON.stringify(patient));
+
+  // Fill profile form fields if profile exists
+  if (patient.profile) {
+    document.getElementById('firstName').value = patient.profile.firstName || '';
+    document.getElementById('lastName').value = patient.profile.lastName || '';
+    document.getElementById('age').value = patient.profile.age || '';
+    document.getElementById('bloodGroup').value = patient.profile.bloodGroup || '';
+    document.getElementById('mobile').value = patient.profile.mobile || '';
+
+    // Disable editing by default if profile exists
+    setProfileFieldsReadonly(true);
+    document.getElementById('saveProfileBtn').disabled = true;
+    document.getElementById('editProfileBtn').disabled = false;
+  } else {
+    // No profile yet - enable inputs for entering data
+    document.getElementById('firstName').value = '';
+    document.getElementById('lastName').value = '';
+    document.getElementById('age').value = '';
+    document.getElementById('bloodGroup').value = '';
+    document.getElementById('mobile').value = '';
+
+    setProfileFieldsReadonly(false);
+    document.getElementById('saveProfileBtn').disabled = false;
+    document.getElementById('editProfileBtn').disabled = true;
+  }
+
+  // Show notification if exists
+  if (patient && patient.notification) {
+    const noteDiv = document.getElementById('notification');
+    noteDiv.innerText = patient.notification;
+    noteDiv.style.display = 'block';
+
+    // Clear notification after showing
+    delete patient.notification;
+    patientsArr = patientsArr.map(p => p.email === patient.email ? patient : p);
+    localStorage.setItem('patients', JSON.stringify(patientsArr));
+    localStorage.setItem('currentPatient', JSON.stringify(patient));
+  } else {
+    document.getElementById('notification').style.display = 'none';
+  }
+
+  // Load appointments for patient
+  loadPatientAppointments();
+}
+async function saveProfile(event) {
+  event.preventDefault();
+
+  const csrftoken = getCookie('csrftoken');
+  const email = JSON.parse(localStorage.getItem('currentPatient')).email;
+
+  const profileData = {
+    email: email,
+    first_name: document.getElementById('firstName').value.trim(),
+    last_name: document.getElementById('lastName').value.trim(),
+    age: parseInt(document.getElementById('age').value, 10),
+    blood_group: document.getElementById('bloodGroup').value,
+    mobile: document.getElementById('mobile').value.trim(),
+  };
+
+  try {
+    const response = await fetch('/api/update-profile/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      alert('Failed to save profile: ' + (errorData.error || 'Unknown error'));
+      return;
+    }
+
+    alert('Profile saved successfully!');
+
+    setProfileFieldsReadonly(true);
+    document.getElementById('saveProfileBtn').disabled = true;
+    document.getElementById('editProfileBtn').disabled = false;
+
+    const patient = JSON.parse(localStorage.getItem('currentPatient'));
+    patient.profile = {
+      firstName: profileData.first_name,
+      lastName: profileData.last_name,
+      age: profileData.age,
+      bloodGroup: profileData.blood_group,
+      mobile: profileData.mobile,
+    };
+    localStorage.setItem('currentPatient', JSON.stringify(patient));
+
+  } catch (error) {
+    alert('Error saving profile: ' + error.message);
+  }
+}
+
+// Enable editing â€” make form inputs editable, enable save button, disable edit button
+function enableProfileEditing() {
+  setProfileFieldsReadonly(false);
+  document.getElementById('saveProfileBtn').disabled = false;
+  document.getElementById('editProfileBtn').disabled = true;
+}
+
+// Make inputs readonly or editable based on argument
+function setProfileFieldsReadonly(readonly) {
+  ['firstName', 'lastName', 'age', 'bloodGroup', 'mobile'].forEach(id => {
+    const elem = document.getElementById(id);
+    if (elem.tagName.toLowerCase() === 'select') {
+      elem.disabled = readonly;  // disable/enable select properly
+    } else {
+      elem.readOnly = readonly;  // set readOnly for inputs/textareas
+    }
+  });
+}
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
+async function uploadMedicalRecord(event) {
+  event.preventDefault();
+  const fileInput = document.getElementById('medicalRecordFile'); // Correct input ID
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please select a file to upload.');
+    return;
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    alert('File size exceeds 1MB. Please select a smaller file or compress it.');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+
+  // Get patient email from logged in user
+  const currentPatient = JSON.parse(localStorage.getItem('currentPatient'));
+  if (!currentPatient || !currentPatient.email) {
+    alert('User not logged in.');
+    return;
+  }
+  formData.append('email', currentPatient.email);
+
+  const csrftoken = getCookie('csrftoken');
+  const statusDiv = document.getElementById('uploadStatus');
+
+  try {
+    const response = await fetch('/api/upload-medical-record/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+      body: formData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      statusDiv.innerHTML = `<small style="color:green;">${data.message}</small>`;
+      fileInput.value = '';
+    } else {
+      const error = await response.json();
+      statusDiv.innerHTML = `<small style="color:red;">Error: ${error.error || 'Upload failed'}</small>`;
+    }
+  } catch (error) {
+    statusDiv.innerHTML = `<small style="color:red;">Error: ${error.message}</small>`;
+  }
+}
+
+// Bind the form submission event
+
+
+function setProfileFieldsReadonly(readonly) {
+    const fields = ['firstName', 'lastName', 'age', 'bloodGroup', 'mobile'];
+    fields.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.readOnly = readonly;
+        element.disabled = readonly;
+      }
+    });
+    // Special handling for bloodGroup which is a select element
+    const bloodGroup = document.getElementById('bloodGroup');
+    if (bloodGroup) {
+      bloodGroup.disabled = readonly;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const editBtn = document.getElementById('editProfileBtn');
+  const saveBtn = document.getElementById('saveProfileBtn');
+  const profileForm = document.querySelector('form[onsubmit="saveProfile(event)"]');
+  
+  if (editBtn && saveBtn && profileForm) {
+    // Make fields editable by default
+    setProfileFieldsReadonly(false);
+    
+    // Handle form submission
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      saveProfile(e);
+    });
+  }
+});
+
+function showNotification() {
+    const patient = JSON.parse(localStorage.getItem('currentPatient'));
+    const allPatients = JSON.parse(localStorage.getItem('patients'));
+    const current = allPatients.find(p => p.email === patient.email);
+
+    if (current.notification) {
+        alert(current.notification); // Show popup message
+        delete current.notification; // Clear after showing
+
+        // Update storage
+        const updatedPatients = allPatients.map(p => p.email === current.email ? current : p);
+        localStorage.setItem('patients', JSON.stringify(updatedPatients));
+    }
+}
+
+
+
+async function bookAppointment(event) {
+  event.preventDefault();
+  // Gather form field values
+  const serviceType = document.getElementById('serviceType').value;
+  const reason = document.getElementById('reasonForVisit').value;
+  const appointmentDate = document.getElementById('appointmentDate').value;
+  const appointmentTime = document.getElementById('appointmentTime').value;
+  // Get logged in patient's email
+  const patient = JSON.parse(localStorage.getItem('currentPatient'));
+  const email = patient ? patient.email : '';
+  const csrftoken = getCookie('csrftoken');
+  try {
+    const response = await fetch('/api/book-appointment/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify({
+        email: email,
+        doctor_name: serviceType,
+        reason: reason,
+        appointment_date: appointmentDate,
+        appointment_time: appointmentTime,
+      }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      alert(data.message || 'Appointment booked successfully!');
+      // Optionally reset form fields
+      event.target.reset();
+    } else {
+      throw new Error(data.error || 'Failed to book appointment');
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+ 
+function loadPatientAppointments() {
+    const patient = JSON.parse(localStorage.getItem('currentPatient'));
+    const patientAppointments = appointments.filter(app => app.patient === patient.email);
+
+    document.getElementById('patientAppointments').innerHTML = patientAppointments.map((app, index) => `
+        <div class="card mb-2">
+            <div class="card-body">
+                <p><strong>Service:</strong> ${app.service}</p>
+                <p><strong>Reason:</strong> ${app.reason || ''}</p>
+                <p><strong>Date:</strong> ${app.date}</p>
+                <p><strong>Time:</strong> ${app.time}</p>
+                <p><strong>Status:</strong> ${app.status}</p>
+                <p><strong>Token Number:</strong> ${app.tokenNumber ? app.tokenNumber : '<span class="text-muted">Not assigned</span>'}</p>
+                <button onclick="editAppointment(${index})" class="btn btn-sm btn-warning">Edit</button>
+                <button onclick="cancelAppointment(${index})" class="btn btn-sm btn-danger">Cancel</button>
+            </div>
+        </div>
+    `).join('');
+}
+function editAppointment(index) {
+    const patient = JSON.parse(localStorage.getItem('currentPatient'));
+    const app = appointments.filter(app => app.patient === patient.email)[index];
+
+    document.getElementById('serviceType').value = app.service;
+    document.getElementById('appointmentDate').value = app.date;
+    document.getElementById('appointmentTime').value = app.time;
+
+    // Remove the old appointment before rebooking
+    appointments = appointments.filter((_, i) => !(appointments[i].patient === patient.email && i === index));
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+    // Notify receptionist about the edit
+    let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
+    receptionistNotifications.push({
+        type: 'edit',
+        message: `Patient ${patient.profile.firstName} ${patient.profile.lastName} edited their appointment.`,
+        timestamp: new Date().toISOString()
+    });
+    localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
+    loadPatientAppointments();
+}
+
+function cancelAppointment(index) {
+    const patient = JSON.parse(localStorage.getItem('currentPatient'));
+    const all = appointments.filter(app => app.patient === patient.email);
+    const toRemove = all[index];
+
+    appointments = appointments.filter(app => !(app.patient === patient.email && app.date === toRemove.date && app.time === toRemove.time));
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+    // Notify receptionist about the cancellation
+    let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
+    receptionistNotifications.push({
+        type: 'cancel',
+        message: `Patient ${patient.profile.firstName} ${patient.profile.lastName} canceled their appointment.`,
+        timestamp: new Date().toISOString()
+    });
+    localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
+    loadPatientAppointments();
+}
+const RECEPTION_CREDENTIALS = { username: 'admin', password: 'admin123' };
+
+async function handleReceptionLogin(event) {
+  event.preventDefault();
+  console.log('Receptionist login function triggered');
+  const passkey = document.getElementById('receptionPasskey').value;
+  const username = document.getElementById('receptionUser').value;
+  const password = document.getElementById('receptionPass').value;
+  const loginBtn = document.getElementById('receptionLoginBtn');
+  loginBtn.disabled = true;
+  loginBtn.innerHTML = 'Logging in...';
+  try {
+      const response = await fetch('/api/reception-login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passkey, username, password })
+    });
+    console.log('Response status:', response.status);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Login success data:', data);
+      alert('Receptionist logged in successfully');
+      showSection('receptionDashboard');
+      console.log('Reception login - visible dashboard:', document.querySelector('.dashboard[style*="block"]')?.id);
+      loadAppointments();
+      loadReceptionistNotifications();
+    } else {
+      const error = await response.json();
+      console.log('Login failed error:', error);
+      alert("Login failed: " + (error.error || "Unknown error"));
+    }
+  } catch (err) {
+    console.log('Error during login:', err);
+    alert("Error: " + err.message);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Login';
+  }
+}
+
+// Receptionist Passkey Logic
+document.addEventListener('DOMContentLoaded', function() {
+  const passkeyInput = document.getElementById('receptionPasskey');
+  const credentialsDiv = document.getElementById('receptionCredentials');
+  const passkeyError = document.getElementById('passkeyError');
+
+  if (passkeyInput) {
+    passkeyInput.addEventListener('input', function() {
+      if (passkeyInput.value === '7874') {
+        credentialsDiv.style.display = 'block';
+        passkeyError.style.display = 'none';
+        passkeyInput.setAttribute('readonly', 'readonly');
+      } else {
+        credentialsDiv.style.display = 'none';
+        if (passkeyInput.value.length === 4) {
+          passkeyError.style.display = 'block';
+        } else {
+          passkeyError.style.display = 'none';
+        }
+      }
+    });
+  }
+});
+
+async function loadAppointments() {
+  document.getElementById('appointmentsList').innerHTML = appointments.map((app, index) => `
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>${app.patientName}</h5>
+        <p><strong>Service:</strong> ${app.service}</p>
+        <p><strong>Date:</strong> ${app.date} at ${app.time}</p>
+        <p><strong>Status:</strong> <span class="badge ${app.status === 'Pending' ? 'bg-warning' : 'bg-success'}">${app.status}</span></p>
+        <p><strong>Assigned Doctor:</strong> ${app.doctor || 'Not Assigned'}</p>
+
+        <div class="d-flex gap-2">
+          <select class="form-select w-50" onchange="assignDoctor(${index}, this.value)">
+            <option value="">Assign Doctor</option>
+            <option value="Dr. Rahul">Dr. Rahul</option>
+            <option value="Dr. Ram">Dr. Ram</option>
+            <option value="Dr. Haema">Dr. Haema</option>
+          </select>
+          <button onclick="updateAppointmentStatus('${app.date}', 'Confirmed')" class="btn btn-sm btn-success">Confirm</button>
+          <button onclick="deleteAppointment('${app.date}')" class="btn btn-sm btn-danger">Reject</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// This function is now only used for reject/cancel
+function updateAppointmentStatus(date, status) {
+    appointments = appointments.map(app => {
+        if (app.date === date) {
+            app.status = status;
+            // Add message for patient
+            let patients = JSON.parse(localStorage.getItem('patients'));
+            patients = patients.map(p => {
+                if (p.email === app.patient) {
+                    p.notification = `Your appointment on ${app.date} at ${app.time} has been ${status.toLowerCase()}.`;
+                }
+                return p;
+            });
+            localStorage.setItem('patients', JSON.stringify(patients));
+        }
+        return app;
+    });
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+    renderReceptionistAppointments();
+}
+
+function assignDoctor(index, doctorName) {
+  const appointment = appointments[index];
+  const selectedDate = appointment.date;
+
+  // Count existing appointments for the selected doctor on the same date
+  const doctorAppointments = appointments.filter(app => app.doctor === doctorName && app.date === selectedDate);
+
+  // Assign doctor if limit is not exceeded
+  appointment.doctor = doctorName;
+  localStorage.setItem('appointments', JSON.stringify(appointments));
+  
+  // Notify the patient about the assigned doctor
+  let patients = JSON.parse(localStorage.getItem('patients')) || [];
+  patients = patients.map(p => {
+    if (p.email === appointment.patient) {
+      p.notification = `Your appointment on ${appointment.date} at ${appointment.time} has been confirmed with Dr. ${doctorName}.`;
+    }
+    return p;
+  });
+  localStorage.setItem('patients', JSON.stringify(patients));
+  loadAppointments(); // Re-render to show updated doctor name
+}
+
+function showDailyAppointments() {
+  const selectedDate = document.getElementById('dailyDate').value;
+  const filtered = appointments.filter(app => app.date === selectedDate);
+
+  if (filtered.length === 0) {
+    document.getElementById('appointmentsList').innerHTML = `<p>No appointments for selected date.</p>`;
+    return;
+  }
+   document.getElementById('appointmentsList').innerHTML = filtered.map((app, index) => `
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>${app.patientName}</h5>
+        <p><strong>Service:</strong> ${app.service}</p>
+        <p><strong>Date:</strong> ${app.date} at ${app.time}</p>
+        <p><strong>Status:</strong> <span class="badge ${app.status === 'Pending' ? 'bg-warning' : 'bg-success'}">${app.status}</span></p>
+        <p><strong>Assigned Doctor:</strong> ${app.doctor || 'Not Assigned'}</p>
+        <div class="d-flex gap-2">
+          <select class="form-select w-50" onchange="assignDoctor(${appointments.indexOf(app)}, this.value)">
+            <option value="">Assign Doctor</option>
+            <option value="Dr. Rahul">Dr. Rahul</option>
+            <option value="Dr. Ram">Dr. Ram</option>
+            <option value="Dr. Haema">Dr. Haema</option>
+          </select>
+          <button onclick="updateAppointmentStatus('${app.date}', 'Confirmed')" class="btn btn-sm btn-success">Confirm</button>
+          <button onclick="deleteAppointment('${app.date}')" class="btn btn-sm btn-danger">Reject</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteAppointment(date) {
+    let deletedAppointment;
+    appointments = appointments.filter(app => {
+        if (app.date === date) {
+            deletedAppointment = app;
+            return false;
+        }
+        return true;
+    });
+
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+
+    if (deletedAppointment) {
+        let patients = JSON.parse(localStorage.getItem('patients')) || [];
+        patients = patients.map(p => {
+            if (p.email === deletedAppointment.patient) {
+                // Add or overwrite a notification
+                p.notification = `Your appointment on ${deletedAppointment.date} at ${deletedAppointment.time} has been canceled due to unavailability of Dr. ${deletedAppointment.doctor || 'the clinic'}.`;
+            }
+            return p;
+        });
+        localStorage.setItem('patients', JSON.stringify(patients));
+    }
+    loadAppointments();
+}
+
+// Medical Record Upload Script
+const MAX_FILE_SIZE_MB = 1;
+const medicalRecordForm = document.getElementById('medicalRecordForm');
+const medicalRecordFile = document.getElementById('medicalRecordFile');
+const uploadStatus = document.getElementById('uploadStatus');                                // --- Receptionist Calendar & Add Appointment ---
+
+function logout() {
+  localStorage.removeItem('currentPatient');
+  showSection('introPage');
+}
+
+// --- Patient notification fix ---
+function showPatientNotification() {
+  const patient = JSON.parse(localStorage.getItem('currentPatient'));
+  let show = false;
+  let message = '';
+  // Check if patient object exists and has a notification
+  if (patient && patient.notification) {
+    show = true;
+    message = patient.notification;
+    // After showing, clear the notification so it doesn't persist
+    delete patient.notification;
+    localStorage.setItem('currentPatient', JSON.stringify(patient));
+  }
+  const notifDiv = document.getElementById('notification');
+  if (notifDiv) {
+    if (show) {
+      notifDiv.innerHTML = message;
+      notifDiv.style.display = '';
+    } else {
+      notifDiv.innerHTML = '';
+      notifDiv.style.display = 'none';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Force render for receptionist dashboard in case of missed calls
+  if (document.getElementById('receptionDashboard')) {
+    renderReceptionistAppointments();
+  }
+});
+
+// --- Receptionist Calendar & Add Appointment ---
+function getMonthDays(year, month) {
+  return new Date(year, month + 1, 0).getDate();
+}
+function renderCalendar(selectedDateStr) {
+  const year = calendarYear;
+  const month = calendarMonth;
+  const daysInMonth = getMonthDays(year, month);
+  // Month/Year navigation
+  let monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let html = `<div class='d-flex justify-content-between align-items-center mb-2'>
+    <button class='btn btn-sm btn-outline-secondary' onclick='changeCalendarMonth(-1)'>&lt;</button>
+    <span class='fw-bold fs-5'>${monthNames[month]} ${year}</span>
+    <button class='btn btn-sm btn-outline-secondary' onclick='changeCalendarMonth(1)'>&gt;</button>
+    <select id='calendarYearSelect' class='form-select form-select-sm w-auto ms-2' onchange='changeCalendarYear(this.value)'>`;
+  for (let y = year-5; y <= year+5; y++) {
+    html += `<option value='${y}' ${y===year?'selected':''}>${y}</option>`;
+  }
+  html += `</select></div>`;
+  html += '<table class="table table-bordered text-center"><tr>';
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  weekDays.forEach(d => html += `<th>${d}</th>`);
+  html += '</tr><tr>';
+  let firstDay = new Date(year, month, 1).getDay();
+  for (let i = 0; i < firstDay; i++) html += '<td></td>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls = '';
+    if (selectedDateStr === dateStr) cls = 'table-primary';
+    html += `<td class="calendar-day ${cls}" data-date="${dateStr}">${d}</td>`;
+    if ((firstDay + d) % 7 === 0) html += '</tr><tr>';
+  }
+  html += '</tr></table>';
+  document.getElementById('calendarContainer').innerHTML = html;
+  document.querySelectorAll('.calendar-day').forEach(td => {
+    td.onclick = function() {
+      receptionistSelectedDate = td.getAttribute('data-date');
+      renderCalendar(receptionistSelectedDate);
+      renderReceptionistAppointments();
+    };
+  });
+}
+function changeCalendarMonth(delta) {
+  calendarMonth += delta;
+  if (calendarMonth < 0) {
+    calendarMonth = 11;
+    calendarYear--;
+  } else if (calendarMonth > 11) {
+    calendarMonth = 0;
+    calendarYear++;
+  }
+  renderCalendar(receptionistSelectedDate);
+  renderReceptionistAppointments();
+}
+function changeCalendarYear(year) {
+  calendarYear = parseInt(year);
+  renderCalendar(receptionistSelectedDate);
+  renderReceptionistAppointments();
+}
+function renderReceptionistAppointments() {
+  let filtered = appointments;
+  if (receptionistSelectedDate) {
+    filtered = appointments.filter(app => app.date === receptionistSelectedDate);
+  }
+  document.getElementById('appointmentsList').innerHTML = filtered.length === 0
+    ? '<p>No appointments for selected date.</p>'
+    : filtered.map((app, index) => {
+      // Always show token numbers 1 to 10
+      let tokenOptions = '';
+      for (let i = 1; i <= 10; i++) {
+        tokenOptions += `<option value="${i}" ${app.tokenNumber == i ? 'selected' : ''}>${i}</option>`;
+      }
+      return `
+      <div class="card mb-2"><div class="card-body">
+        <h5>${app.patientName || app.patient || 'Unknown'}</h5>
+        <p><strong>Service:</strong> ${app.service}</p>
+        <p><strong>Date:</strong> ${app.date} at ${app.time}</p>
+        <p><strong>Status:</strong> <span class="badge ${app.status === 'Pending' ? 'bg-warning' : 'bg-success'}">${app.status}</span></p>
+        <p><strong>Assigned Doctor:</strong> ${app.doctor || 'Not Assigned'}</p>
+        <div class="d-flex gap-2 align-items-center">
+          <select class="form-select w-auto" id="tokenSelect_${index}">
+            <option value="">Token Number</option>
+            ${tokenOptions}
+          </select>
+          <button onclick="confirmAppointmentWithToken(${index})" class="btn btn-sm btn-success">Confirm</button>
+          <button onclick="deleteAppointment('${app.date}')" class="btn btn-sm btn-danger">Reject</button>
+        </div>
+        ${app.tokenNumber ? `<div class='mt-2'><strong>Token Number:</strong> <span class='badge bg-info'>${app.tokenNumber}</span></div>` : ''}
+      </div></div>
+      `;
+    }).join('');
+}
+function loadReceptionistNotifications() {
+  // Fetch notifications from localStorage or use an empty array if none exist
+  let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
+
+  // Render notifications in the UI
+  document.getElementById('notificationsList').innerHTML = receptionistNotifications.map(note => `
+    <div class="alert alert-info">
+      <p>${note.message}</p>
+      <small>${new Date(note.timestamp).toLocaleString()}</small>
+    </div>
+  `).join('');
+}
+// This code runs when an appointment is booked successfully:
+function onAppointmentBooked(patientName, serviceType, appointmentDate, appointmentTime) {
+  const newNotification = {
+    message: `New appointment booked by ${patientName} for ${serviceType} on ${appointmentDate} at ${appointmentTime}.`,
+    timestamp: new Date().toISOString()
+  };
+
+  // Fetch existing notifications
+  let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
+
+  // Add the new notification at the start (or end)
+  receptionistNotifications.unshift(newNotification);
+
+  // Save back to localStorage
+  localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
+
+  // Refresh UI
+  loadReceptionistNotifications();
+}
+
+
+function confirmAppointmentWithToken(index) {
+  const tokenSelect = document.getElementById(`tokenSelect_${index}`);
+  const tokenNumber = tokenSelect.value;
+  if (!tokenNumber) {
+    alert('Please select a token number before confirming.');
+    return;
+  }
+  const appointment = appointments[index];
+  appointment.tokenNumber = tokenNumber;
+  appointment.status = 'Confirmed';
+  localStorage.setItem('appointments', JSON.stringify(appointments));
+
+  // Notify the patient about the confirmed appointment with token number
+  let patients = JSON.parse(localStorage.getItem('patients')) || [];
+  patients = patients.map(p => {
+    if (p.email === appointment.patient) {
+      p.notification = `Your appointment on ${appointment.date} at ${appointment.time} has been confirmed with token number ${tokenNumber}.`;
+    }
+    return p;
+  });
+  localStorage.setItem('patients', JSON.stringify(patients));
+  renderReceptionistAppointments();
+}
+
+// Show Add Appointment Modal
+function showAddAppointmentModal() {
+  console.log('Add Appointment modal - visible dashboard:', document.querySelector('.dashboard[style*="block"]')?.id);
+  document.getElementById('addAppointmentModal').style.display = 'block';
+  document.getElementById('addAppointmentModal').style.zIndex = '1055'; // Optional, ensure above dashboards
+  document.body.classList.add('modal-open');
+  document.getElementById('addAppointmentForm').reset();
+  document.getElementById('addAppointmentStatus').innerHTML = '';
+}
+
+// Close Add Appointment Modal
+function closeAddAppointmentModal() {
+  document.getElementById('addAppointmentModal').style.display = 'none';
+  document.body.classList.remove('modal-open');
+  document.getElementById('addAppointmentForm').reset();
+  document.getElementById('addAppointmentStatus').innerHTML = '';
+}
+
+document.getElementById('addAppointmentForm').onsubmit = function(e) {
+  e.preventDefault();
+  const email = document.getElementById('modalPatientEmail').value.trim();
+  const service = document.getElementById('modalServiceType').value;
+  const date = document.getElementById('modalAppointmentDate').value;
+  const time = document.getElementById('modalAppointmentTime').value;
+  if (!email || !service || !date || !time) {
+    document.getElementById('addAppointmentStatus').innerHTML = '<span class="text-danger">All fields are required.</span>';
+    return;
+  }
+  // Try to get patient name from patients list
+  let patientName = email;
+  if (window.patients && Array.isArray(window.patients)) {
+    const found = window.patients.find(p => p.email === email);
+    if (found && found.profile && found.profile.firstName) {
+      patientName = `${found.profile.firstName} ${found.profile.lastName || ''}`.trim();
+    }
+  }
+
+  // Ensure appointments is initialized
+  let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+
+  appointments.push({
+    patient: email,
+    patientName,
+    service,
+    date,
+    time,
+    status: 'Pending',
+    doctor: ''
+  });
+
+  localStorage.setItem('appointments', JSON.stringify(appointments));
+
+  // Create receptionist notification
+  const newNotification = {
+    message: `New appointment booked by ${patientName} for ${service} on ${date} at ${time}.`,
+    timestamp: new Date().toISOString()
+  };
+
+  let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
+  receptionistNotifications.unshift(newNotification);
+  localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
+
+  // Notify UI
+  document.getElementById('addAppointmentStatus').innerHTML = '<span class="text-success">Appointment added!</span>';
+
+  setTimeout(() => {
+    closeAddAppointmentModal();
+    renderReceptionistAppointments();
+    renderCalendar(receptionistSelectedDate);
+    loadReceptionistNotifications();  // Refresh notifications UI as well
+  }, 800);
+};
+
+// Initial calendar and appointments
+if (document.getElementById('calendarContainer')) {
+  renderCalendar(null);
+  renderReceptionistAppointments();
+}
+
+function clearReceptionistNotifications() {
+  localStorage.removeItem('receptionistNotifications');
+  document.getElementById('notificationsList').innerHTML = '<p>No notifications.</p>';
+}
+// --- Pharmacy Section JS ---
+const serviceToMedicines = {
+  "General Checkup": [
+    { name: "Paracetamol 500mg", price: 30 },
+    { name: "Vitamin C Tablets", price: 80 }
+  ],
+  "Eye Care": [
+    { name: "Lubricant Eye Drops", price: 120 },
+    { name: "Antibiotic Eye Ointment", price: 90 }
+  ],
+  "Dental Care": [
+    { name: "Pain Relief Gel", price: 60 },
+    { name: "Mouthwash", price: 100 }
+  ],
+  "Blood test": [
+    { name: "Iron Tablets", price: 70 },
+    { name: "Vitamin D3 Tablets", price: 110 }
+  ],
+  "Diabetes test": [
+    { name: "Glucometer Strips (10)", price: 250 },
+    { name: "Metformin 500mg", price: 45 }
+  ],
+  "X-ray": [
+    { name: "Calcium Tablets", price: 95 }
+  ],
+  "PT scan": [
+    { name: "Pain Relief Spray", price: 130 }
+  ],
+  "Vaccination": [
+    { name: "Paracetamol 500mg", price: 30 }
+  ]
+};
+
+function renderMedicineList() {
+  const service = document.getElementById('serviceType').value;
+  const medicineListDiv = document.getElementById('medicineList');
+  medicineListDiv.innerHTML = '';
+  if (service && serviceToMedicines[service]) {
+    serviceToMedicines[service].forEach((med, idx) => {
+      const medId = `medicine_${idx}`;
+      medicineListDiv.innerHTML += `
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="${med.name}" data-price="${med.price}" id="${medId}">
+          <label class="form-check-label" for="${medId}">
+            ${med.name} <span class="badge bg-info text-dark">â‚¹${med.price}</span>
+          </label>
+        </div>
+      `;
+    });
+  } else {
+    medicineListDiv.innerHTML = '<span class="text-muted">Select a service to view available medicines.</span>';
+  }
+}
+
+// Update medicine list when service changes
+const serviceTypeSelect = document.getElementById('serviceType');
+if (serviceTypeSelect) {
+  serviceTypeSelect.addEventListener('change', renderMedicineList);
+}
+
+// Handle pharmacy order
+const pharmacyForm = document.getElementById('pharmacyForm');
+if (pharmacyForm) {
+  pharmacyForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const address = document.getElementById('pharmacyAddress').value.trim();
+    const pincode = document.getElementById('pharmacyPincode').value.trim();
+    const checkedBoxes = document.querySelectorAll('#medicineList input[type=checkbox]:checked');
+    if (checkedBoxes.length === 0) {
+      document.getElementById('pharmacyOrderStatus').innerHTML = '<span class="text-danger">Please select at least one medicine.</span>';
+      return;
+    }
+    let orderSummary = '<ul>';
+    let total = 0;
+    checkedBoxes.forEach(cb => {
+      orderSummary += `<li>${cb.value} - â‚¹${cb.getAttribute('data-price')}</li>`;
+      total += parseInt(cb.getAttribute('data-price'));
+    });
+    orderSummary += `</ul><strong>Total: â‚¹${total}</strong>`;
+    document.getElementById('pharmacyOrderStatus').innerHTML =
+      `<span class="text-success">Order placed! You will receive the order within 3-5 days.</span><br>${orderSummary}`;
+    pharmacyForm.reset();
+    renderMedicineList();
+    // Show payment section
+    document.getElementById('pharmacyPayment').style.display = 'block';
+    document.getElementById('paymentStatus').innerHTML = '';
+  });
+}
+
+// Payment UI logic
+const upiOption = document.getElementById('upiOption');
+const netbankingOption = document.getElementById('netbankingOption');
+const upiSection = document.getElementById('upiSection');
+const netbankingSection = document.getElementById('netbankingSection');
+
+if (upiOption && netbankingOption) {
+  upiOption.addEventListener('change', function() {
+    if (upiOption.checked) {
+      upiSection.style.display = 'block';
+      netbankingSection.style.display = 'none';
+    }
+  });
+  netbankingOption.addEventListener('change', function() {
+    if (netbankingOption.checked) {
+      upiSection.style.display = 'none';
+      netbankingSection.style.display = 'block';
+      // Show phone/OTP only if bank is selected
+      const bankName = document.getElementById('bankName');
+      const netbankingExtra = document.getElementById('netbankingExtra');
+      if (bankName) {
+        bankName.addEventListener('change', function() {
+          if (bankName.value) {
+            netbankingExtra.style.display = 'block';
+          } else {
+            netbankingExtra.style.display = 'none';
+          }
+        });
+      }
+    }
+  });
+}
+
+const payBtn = document.getElementById('payBtn');
+if (payBtn) {
+  payBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    let paymentMethod = document.querySelector('input[name=paymentMethod]:checked').value;
+    let statusDiv = document.getElementById('paymentStatus');
+    if (paymentMethod === 'UPI') {
+      let upiId = document.getElementById('upiId').value.trim();
+      if (!upiId || !upiId.includes('@')) {
+        statusDiv.innerHTML = '<span class="text-danger">Please enter a valid UPI ID.</span>';
+        return;
+      }
+      statusDiv.innerHTML = '<span class="text-success">Payment successful via UPI!</span>';
+      document.getElementById('pharmacyPayment').style.display = 'none';
+    } else if (paymentMethod === 'Netbanking') {
+      let bank = document.getElementById('bankName').value;
+      let phone = document.getElementById('bankPhone').value.trim();
+      let otp = document.getElementById('bankOtp').value.trim();
+      if (!bank) {
+        statusDiv.innerHTML = '<span class="text-danger">Please select a bank.</span>';
+        return;
+      }
+      if (!/^\d{10}$/.test(phone)) {
+        statusDiv.innerHTML = '<span class="text-danger">Please enter a valid 10-digit phone number linked to your bank.</span>';
+        return;
+      }
+      if (!/^\d{6}$/.test(otp)) {
+        statusDiv.innerHTML = '<span class="text-danger">Please enter a valid 6-digit OTP.</span>';
+        return;
+      }
+      statusDiv.innerHTML = `<span class="text-success">Payment successful via Netbanking (${bank})!</span>`;
+      document.getElementById('pharmacyPayment').style.display = 'none';
+    }
+  });
+}
+
+// Render initial medicine list based on selected service
+if (serviceTypeSelect) renderMedicineList();
+</script>
+
+<script>
+// Emergency Contact Form Handler
+const emergencyContactForm = document.getElementById('emergencyContactForm');
+if (emergencyContactForm) {
+  emergencyContactForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('emergencyName').value;
+    const relationship = document.getElementById('emergencyRelationship').value;
+    const phone = document.getElementById('emergencyPhone').value;
+    // Save to localStorage (replace with backend integration if needed)
+    localStorage.setItem('emergencyContact', JSON.stringify({ name, relationship, phone }));
+    document.getElementById('emergencyContactMsg').innerHTML = '<span class="text-success">Emergency contact saved!</span>';
+  });
+}
+// Ambulance Booking Form Handler
+const ambulanceBookingForm = document.getElementById('ambulanceBookingForm');
+if (ambulanceBookingForm) {
+  ambulanceBookingForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const patientName = document.getElementById('ambulancePatientName').value;
+    const pickup = document.getElementById('pickupAddress').value;
+    const contact = document.getElementById('ambulanceContact').value;
+    const reason = document.getElementById('bookingReason').value;
+    // Save booking to localStorage (replace with backend integration if needed)
+    const bookings = JSON.parse(localStorage.getItem('ambulanceBookings') || '[]');
+    bookings.push({ patientName, pickup, contact, reason, time: new Date().toISOString() });
+    localStorage.setItem('ambulanceBookings', JSON.stringify(bookings));
+    document.getElementById('ambulanceBookingMsg').innerHTML = '<span class="text-success">Ambulance booked! We will contact you soon.</span>';
+    ambulanceBookingForm.reset();
+  });
+}
+</script>
+<!-- Feedback & Ratings Section -->
+<div class="container mt-5 mb-5">
+  <div class="card">
+    <div class="card-body">
+      <h4 class="mb-3">Feedback & Ratings</h4>
+      <form id="feedbackForm">
+        <div class="mb-3">
+          <label for="feedbackDoctor" class="form-label">Doctor/Service</label>
+          <input type="text" class="form-control" id="feedbackDoctor" placeholder="Doctor's name or Service" required />
+        </div>
+        <div class="mb-3">
+          <label for="feedbackText" class="form-label">Your Feedback</label>
+          <textarea class="form-control" id="feedbackText" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Rating</label>
+          <div id="starRating">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+          </div>
+          <input type="hidden" id="feedbackRating" value="0" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+        <div id="feedbackMsg" class="mt-2"></div>
+      </form>
+      <hr/>
+      <h5>Recent Feedback</h5>
+      <div id="feedbackList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Feedback & Ratings logic
+const feedbackForm = document.getElementById('feedbackForm');
+const feedbackListDiv = document.getElementById('feedbackList');
+const feedbackMsg = document.getElementById('feedbackMsg');
+const starRatingDiv = document.getElementById('starRating');
+const feedbackRatingInput = document.getElementById('feedbackRating');
+
+// Star rating UI logic
+if (starRatingDiv && feedbackRatingInput) {
+  starRatingDiv.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+      const rating = this.getAttribute('data-value');
+      feedbackRatingInput.value = rating;
+      starRatingDiv.querySelectorAll('.star').forEach(s => {
+        s.style.color = s.getAttribute('data-value') <= rating ? '#ffc107' : '#ccc';
+      });
+    });
+  });
+}
+
+function renderFeedbackList() {
+  const feedbacks = JSON.parse(localStorage.getItem('clinicFeedbacks') || '[]');
+  if (feedbacks.length === 0) {
+    feedbackListDiv.innerHTML = '<em>No feedback yet.</em>';
+    return;
+  }
+  feedbackListDiv.innerHTML = feedbacks.reverse().map(f => `
+    <div class="border rounded p-2 mb-2">
+      <strong>${f.doctor}</strong> <span class="text-warning">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5-f.rating)}</span><br/>
+      <span>${f.text}</span>
+    </div>
+  `).join('');
+}
+
+if (feedbackForm) {
+  feedbackForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const doctor = document.getElementById('feedbackDoctor').value.trim();
+    const text = document.getElementById('feedbackText').value.trim();
+    const rating = parseInt(document.getElementById('feedbackRating').value, 10);
+    if (!doctor || !text || !rating) {
+      feedbackMsg.innerHTML = '<span class="text-danger">Please fill all fields and select a rating.</span>';
+      return;
+    }
+    const feedbacks = JSON.parse(localStorage.getItem('clinicFeedbacks') || '[]');
+    feedbacks.push({ doctor, text, rating });
+    localStorage.setItem('clinicFeedbacks', JSON.stringify(feedbacks));
+    feedbackMsg.innerHTML = '<span class="text-success">Thank you for your feedback!</span>';
+    feedbackForm.reset();
+    feedbackRatingInput.value = 0;
+    starRatingDiv.querySelectorAll('.star').forEach(s => s.style.color = '#ccc');
+    renderFeedbackList();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', renderFeedbackList);
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('verified') === '1') {
+    alert('Email verified successfully! You can now log in.');
+  }
+});
+
+document.getElementById('medicalRecordForm').addEventListener('submit', uploadMedicalRecord);
+
+</script>
+
+  <div style="margin-bottom: 100px;">
+    <!-- This pushes content up to prevent it from being hidden behind the fixed footer -->
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>Contact: 8248917874 | Address: Thanjavur, Tamil Nadu</p>
+    <p>&copy; 2025 HEALTHPOINT CLINIC. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

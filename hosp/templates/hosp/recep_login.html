@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Receptionist Login - HealthPoint Clinic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(120deg, #f8f9fa 60%, #e9ecef 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .hero-section {
+      background: linear-gradient(to right, #007bff, #6610f2);
+      color: white;
+      padding: 3rem 1rem 2rem 1rem;
+      text-align: center;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    .card {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+      border-radius: 16px;
+      border: none;
+    }
+    .dashboard {
+      display: none;
+    }
+    .dashboard.active {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .clinic-info {
+      background: #fff;
+      padding: 2rem;
+      margin: 2rem auto;
+      text-align: center;
+      max-width: 800px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .modal-content {
+      border-radius: 10px;
+    }
+    .calendar-table th, .calendar-table td {
+      text-align: center;
+      vertical-align: middle;
+      padding: 0.5rem;
+    }
+    .calendar-day {
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .calendar-day.table-primary {
+      background: #cfe2ff !important;
+      color: #212529;
+    }
+    .btn-primary, .btn-success {
+      border-radius: 8px;
+      font-weight: 500;
+    }
+    .alert-info {
+      border-radius: 8px;
+      background: #e9f7fd;
+      color: #055160;
+      border: 1px solid #b6e0fe;
+    }
+    @media (max-width: 600px) {
+      .clinic-info, .card, .dashboard {
+        margin: 1rem 0.5rem;
+        padding: 1rem;
+      }
+      .hero-section {
+        padding: 2rem 0.5rem 1rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Receptionist Authentication -->
+  <div id="receptionAuth" class="container mt-5 dashboard active">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-6">
+        <div class="card p-4">
+          <div class="card-body">
+            <h3 class="text-center mb-3">Receptionist Login</h3>
+            <div class="alert alert-warning text-center mb-3">
+              Only authorized personnel can access
+            </div>
+            <form onsubmit="handleReceptionLogin(event)">
+              <div class="mb-3">
+                <label for="receptionPasskey" class="form-label">Enter Passkey</label>
+                <input type="password" id="receptionPasskey" class="form-control" maxlength="4" required>
+                <div id="passkeyError" class="text-danger mt-1" style="display: none;">Incorrect passkey. Please try again.</div>
+              </div>
+              <div id="receptionCredentials" style="display: none;">
+                <div class="mb-3">
+                  <label for="receptionUser" class="form-label">Username</label>
+                  <input type="text" id="receptionUser" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                  <label for="receptionPass" class="form-label">Password</label>
+                  <input type="password" id="receptionPass" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" id="receptionLoginBtn">Login</button>
+              </div>
+            </form>
+            <div class="text-center mt-3">
+              <a href="#" onclick=receptionistLogout() class="btn btn-outline-secondary">Back to Home</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Add Appointment Modal -->
+<div class="modal" tabindex="-1" id="addAppointmentModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Appointment</h5>
+        <button type="button" class="btn-close" onclick="closeAddAppointmentModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addAppointmentForm">
+          <div class="mb-2">
+            <label class="form-label">Patient Email (existing or new)</label>
+            <input type="email" id="modalPatientEmail" autocomplete="email" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Service</label>
+            <select id="modalServiceType" class="form-select" required>
+              <option value="">Select Service</option>
+              <option>General Checkup</option>
+              <option>Eye Care</option>
+              <option>Dental Care</option>
+              <option>Blood test</option>
+              <option>Diabetes test</option>
+              <option>X-ray</option>
+              <option>PT scan</option>
+              <option>Vaccination</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label for="modalReasonForVisit" class="form-label mt-2">Reason for Visit</label>
+            <textarea id="modalReasonForVisit" class="form-control" rows="3" placeholder="Describe your reason for visiting the clinic" required></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Date</label>
+            <input type="date" id="modalAppointmentDate" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Time</label>
+            <select id="modalAppointmentTime" class="form-select w-50" required>
+              <option value="">Select Time</option>
+              <option value="09:00-10:00">9:00 AM – 10:00 AM</option>
+              <option value="10:00-11:00">10:00 AM – 11:00 AM</option>
+              <option value="11:00-12:00">11:00 AM – 12:00 PM</option>
+              <option value="14:00-15:00">2:00 PM – 3:00 PM</option>
+              <option value="15:00-16:00">3:00 PM – 4:00 PM</option>
+              <option value="16:00-17:00">4:00 PM – 5:00 PM</option>
+              <option value="17:00-18:00">5:00 PM – 6:00 PM</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Book Appointment</button>
+        </form>
+        <div id="addAppointmentStatus" class="mt-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Receptionist Dashboard -->
+  <div id="receptionDashboard" class="container mt-5 dashboard" style="display:none;">
+    <div class="card p-4 mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Receptionist Dashboard</h2>
+        <button class="btn btn-outline-danger" onclick="receptionistLogout()">Logout</button>
+      </div>
+      <h2 class="mb-3">Appointment Management</h2>
+      <div class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <button type="button" class="btn btn-primary" onclick="showAddAppointmentModal()">+ Add Appointment</button>
+        <div id="calendarContainer" class="w-100 w-md-50"></div>
+      </div>
+      <div id="receptionistNotifications" class="mt-4">
+        <h4>Notifications</h4>
+        <div id="notificationsList"></div>
+        <button onclick="clearReceptionistNotifications()" class="btn btn-danger mt-3">Clear Notifications</button>
+        <h2>Appointment List</h2>
+      </div>
+      <div id="appointmentsList" class="mt-4"></div>
+    </div>
+  </div>
+
+  <script src="{% static 'hosp/recep_log.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
