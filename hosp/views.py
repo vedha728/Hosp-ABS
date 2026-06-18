@@ -14,6 +14,18 @@ from decouple import config
 import json
 from datetime import datetime, timedelta
 
+# --- Session Auth Helper ---
+def get_logged_in_patient(request):
+    """Returns the Patient object for the currently logged-in patient,
+    or None if no patient session exists."""
+    email = request.session.get('patient_email')
+    if not email:
+        return None
+    try:
+        return Patient.objects.get(email=email)
+    except Patient.DoesNotExist:
+        return None
+
 def home(request):
     return render(request, 'hosp/index.html')
 
@@ -38,6 +50,8 @@ def login_patient(request):
     try:
         patient = Patient.objects.get(email=email)
         if check_password(password, patient.password):
+            # Store patient identity in server-side session
+            request.session['patient_email'] = patient.email
             serializer = PatientSerializer(patient)
             return Response(serializer.data)
         else:
@@ -45,75 +59,70 @@ def login_patient(request):
     except Patient.DoesNotExist:
         return Response({'error': 'User not found'}, status=404)
 
-    
+
+@csrf_exempt
+def logout_patient(request):
+    """Clears the patient session — proper server-side logout."""
+    if request.method == 'POST':
+        request.session.flush()
+        return JsonResponse({'message': 'Logged out successfully.'})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
+
 
 @api_view(['POST'])
 def update_patient_profile(request):
-    email = request.data.get('email')
-    try:
-        patient = Patient.objects.get(email=email)
-        # Update fields from request
-        for field in ['first_name', 'last_name', 'age', 'blood_group', 'mobile']:
-            value = request.data.get(field)
-            if value is not None:
-                setattr(patient, field, value)
-        patient.save()
-        return Response({'message': 'Profile updated successfully.'})
-    except Patient.DoesNotExist:
-        return Response({'error': 'Patient not found.'}, status=404)
+    patient = get_logged_in_patient(request)
+    if not patient:
+        return Response({'error': 'Not logged in.'}, status=401)
+    # Update fields from request
+    for field in ['first_name', 'last_name', 'age', 'blood_group', 'mobile']:
+        value = request.data.get(field)
+        if value is not None:
+            setattr(patient, field, value)
+    patient.save()
+    return Response({'message': 'Profile updated successfully.'})
 
 
 @api_view(['POST'])
 def book_appointment(request):
-    email = request.data.get('email')
+    patient = get_logged_in_patient(request)
+    if not patient:
+        return Response({'error': 'Not logged in.'}, status=401)
     appointment_date = request.data.get('appointment_date')
     doctor_name = request.data.get('doctor_name')
     reason = request.data.get('reason')
-    appointment_time=request.data.get('appointment_time')
-    try:
-        patient = Patient.objects.get(email=email)
-        appointment = Appointment.objects.create(
-            patient=patient,
-            appointment_date=appointment_date,
-            appointment_time=appointment_time,
-            doctor_name=doctor_name,
-            reason=reason,
-            status='Pending'
-        )
-        return Response({'message': 'Appointment booked successfully.'})
-    except Patient.DoesNotExist:
-        return Response({'error': 'Patient not found.'}, status=404)
+    appointment_time = request.data.get('appointment_time')
+    appointment = Appointment.objects.create(
+        patient=patient,
+        appointment_date=appointment_date,
+        appointment_time=appointment_time,
+        doctor_name=doctor_name,
+        reason=reason,
+        status='Pending'
+    )
+    return Response({'message': 'Appointment booked successfully.'})
 
 @api_view(['POST'])
 def get_patient_profile(request):
-    email = request.data.get('email')
-    try:
-        patient = Patient.objects.get(email=email)
-        data = {
-            'first_name': patient.first_name,
-            'last_name': patient.last_name,
-            'age': patient.age,
-            'blood_group': patient.blood_group,
-            'mobile': patient.mobile,
-        }
-        return Response(data, status=200)
-    except Patient.DoesNotExist:
-        return Response({'error': 'Patient not found'}, status=404)
+    patient = get_logged_in_patient(request)
+    if not patient:
+        return Response({'error': 'Not logged in.'}, status=401)
+    data = {
+        'first_name': patient.first_name,
+        'last_name': patient.last_name,
+        'age': patient.age,
+        'blood_group': patient.blood_group,
+        'mobile': patient.mobile,
+    }
+    return Response(data, status=200)
 
 MAX_UPLOAD_SIZE = 1 * 1024 * 1024  # 1MB in bytes
 @api_view(['POST'])
 def upload_medical_record(request):
+    patient = get_logged_in_patient(request)
+    if not patient:
+        return Response({'error': 'Not logged in.'}, status=401)
     file = request.FILES.get('file')
-    email = request.POST.get('email')
-
-    if not email:
-        return Response({'error': 'Email not provided'}, status=400)
-
-    try:
-        patient = Patient.objects.get(email=email)
-    except Patient.DoesNotExist:
-        return Response({'error': 'Patient not found'}, status=404)
-
     if not file:
         return Response({'error': 'No file received'}, status=400)
     if file.size > MAX_UPLOAD_SIZE:
@@ -148,25 +157,21 @@ def recep_login_view(request):
 def get_appointments(request):
     if request.method == "POST":
         try:
-            if not request.body:
-                return JsonResponse({"error": "Empty request body"}, status=400)
-            data = json.loads(request.body.decode('utf-8'))
-            email = data.get("email")
+            # Read patient identity from session — not from request body
+            email = request.session.get('patient_email')
             if not email:
-                return JsonResponse({"error": "No email provided"}, status=400)
+                return JsonResponse({"error": "Not logged in."}, status=401)
             # Fetch appointments for this patient
             appointments_qs = Appointment.objects.filter(patient__email=email)
             appointments = []
             for appointment in appointments_qs:
                 appointments.append({
-                    "service": appointment.doctor_name,   # doctor_name in your model
+                    "service": appointment.doctor_name,
                     "reason": appointment.reason,
                     "date": str(appointment.appointment_date),
                     "time": str(appointment.appointment_time),
                     "status": appointment.status,
-                    'token_number': getattr(appointment, 'token_number', None),  # If you add this field
-
-                    # Optional: "tokenNumber": None,
+                    'token_number': getattr(appointment, 'token_number', None),
                 })
             return JsonResponse({"appointments": appointments})
         except Exception as e:
@@ -176,13 +181,13 @@ def get_appointments(request):
 
 @api_view(['POST'])
 def cancel_appointment(request):
-    email = request.data.get('email')
+    patient = get_logged_in_patient(request)
+    if not patient:
+        return Response({'error': 'Not logged in.'}, status=401)
     date = request.data.get('date')
     time = request.data.get('time')
     service = request.data.get('service')
     try:
-        patient = Patient.objects.get(email=email)
-        # Find the matching appointment
         appointment = Appointment.objects.get(
             patient=patient,
             appointment_date=date,

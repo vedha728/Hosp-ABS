@@ -157,15 +157,7 @@ async function uploadMedicalRecord(event) {
   }
   const formData = new FormData();
   formData.append('file', file);
-
-  // Get patient email from logged in user
-  const currentPatient = JSON.parse(localStorage.getItem('currentPatient'));
-  if (!currentPatient || !currentPatient.email) {
-    alert('User not logged in.');
-    return;
-  }
-  formData.append('email', currentPatient.email);
-
+  // email no longer sent in formData — server reads from session
   const csrftoken = getCookie('csrftoken');
   const statusDiv = document.getElementById('uploadStatus');
 
@@ -173,7 +165,7 @@ async function uploadMedicalRecord(event) {
     const response = await fetch('/api/upload-medical-record/', {
       method: 'POST',
       headers: { 'X-CSRFToken': csrftoken },
-      body: formData
+      body: formData  // email removed from formData — server reads from session
     });
 
     if (response.ok) {
@@ -253,7 +245,7 @@ async function fetchPatientProfile(email) {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken,
       },
-      body: JSON.stringify({ email: email }),
+      body: JSON.stringify({}), // email read from session on server
     });
 
     if (response.ok) {
@@ -372,7 +364,7 @@ async function loadPatientAppointments() {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken,
       },
-      body: JSON.stringify({ email: patient.email })
+      body: JSON.stringify({}) // email now read from session on server
     });
 
     const data = await response.json();
@@ -431,14 +423,10 @@ async function loadPatientAppointments() {
 
 async function bookAppointment(event) {
   event.preventDefault();
-  // Gather form field values
   const serviceType = document.getElementById('serviceType').value;
   const reason = document.getElementById('reasonForVisit').value;
   const appointmentDate = document.getElementById('appointmentDate').value;
   const appointmentTime = document.getElementById('appointmentTime').value;
-  // Get logged in patient's email
-  const patient = JSON.parse(localStorage.getItem('currentPatient'));
-  const email = patient ? patient.email : '';
   const csrftoken = getCookie('csrftoken');
   try {
     const response = await fetch('/api/book-appointment/', {
@@ -448,7 +436,6 @@ async function bookAppointment(event) {
         'X-CSRFToken': csrftoken,
       },
       body: JSON.stringify({
-        email: email,
         doctor_name: serviceType,
         reason: reason,
         appointment_date: appointmentDate,
@@ -481,10 +468,10 @@ async function cancelAppointment(service, date, time) {
         'X-CSRFToken': csrftoken
       },
       body: JSON.stringify({
-        email: patient.email,
-        service: service, // doctor_name field in database
-        date: date,       // date (appointment_date in DB)
-        time: time        // time (appointment_time in DB)
+        service: service,
+        date: date,
+        time: time
+        // email removed — server reads from session
       })
     });
 
@@ -520,7 +507,18 @@ const medicalRecordForm = document.getElementById('medicalRecordForm');
 const medicalRecordFile = document.getElementById('medicalRecordFile');
 const uploadStatus = document.getElementById('uploadStatus');                                // --- Receptionist Calendar & Add Appointment ---
 
-function logout() {
+async function logout() {
+  const csrftoken = getCookie('csrftoken');
+  try {
+    // Tell server to clear the session
+    await fetch('/api/logout/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+  } catch (e) {
+    console.warn('Logout request failed:', e);
+  }
+  // Clear local storage and redirect
   localStorage.removeItem('currentPatient');
   window.location.href = '/';
 }
