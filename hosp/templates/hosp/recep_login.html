@@ -5,25 +5,70 @@
   <title>Receptionist Login - CureWell Hospital</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+    }
     body {
-      background: linear-gradient(120deg, #f8f9fa 60%, #e9ecef 100%);
-      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
       min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+    /* Ambient Blur Blobs in background */
+    .ambient-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, rgba(14, 165, 233, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .ambient-blob-2 {
+      position: absolute;
+      top: 40%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, rgba(20, 184, 166, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
     }
     .hero-section {
-      background: linear-gradient(to right, #007bff, #6610f2);
-      color: white;
-      padding: 3rem 1rem 2rem 1rem;
+      background: radial-gradient(circle at 50% 120%, rgba(14, 165, 233, 0.08) 0%, rgba(248, 250, 252, 1) 100%);
+      color: #0f172a;
+      padding: 3rem 1rem 2.5rem 1rem;
       text-align: center;
       border-radius: 0 0 24px 24px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
       margin-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .hero-section h1 {
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #0f172a 30%, #0369a1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     .card {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+      background: var(--card-bg) !important;
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border) !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04) !important;
       border-radius: 16px;
-      border: none;
+      color: var(--text-main);
     }
     .dashboard {
       display: none;
@@ -37,16 +82,23 @@
       to { opacity: 1; }
     }
     .clinic-info {
-      background: #fff;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       padding: 2rem;
       margin: 2rem auto;
       text-align: center;
       max-width: 800px;
       border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
     }
     .modal-content {
-      border-radius: 10px;
+      background: #ffffff !important;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      color: var(--text-main);
+    }
+    .modal-header, .modal-footer {
+      border-color: var(--card-border) !important;
     }
     .calendar-table th, .calendar-table td {
       text-align: center;
@@ -58,19 +110,68 @@
       border-radius: 50%;
       transition: background 0.2s;
     }
-    .calendar-day.table-primary {
-      background: #cfe2ff !important;
-      color: #212529;
+    .calendar-day:hover {
+      background: #f0f9ff !important;
+      color: #0284c7 !important;
     }
+    .calendar-day.table-primary {
+      background: #e0f2fe !important;
+      color: #0369a1 !important;
+      border: 1px solid #0284c7 !important;
+    }
+    
+    /* Inputs Styling */
+    .form-control {
+      background-color: var(--input-bg) !important;
+      border: 1px solid var(--input-border) !important;
+      color: var(--text-main) !important;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+    }
+    .form-control:focus {
+      background-color: #ffffff !important;
+      border-color: #0284c7 !important;
+      box-shadow: 0 0 8px rgba(2, 132, 199, 0.15) !important;
+      color: #0f172a !important;
+    }
+    .form-control::placeholder {
+      color: #cbd5e1 !important;
+    }
+
     .btn-primary, .btn-success {
+      border: none !important;
       border-radius: 8px;
       font-weight: 500;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;
+      color: #ffffff !important;
+    }
+    .btn-primary:hover, .btn-success:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3) !important;
+      transform: translateY(-1px);
+      color: #ffffff !important;
     }
     .alert-info {
       border-radius: 8px;
-      background: #e9f7fd;
-      color: #055160;
-      border: 1px solid #b6e0fe;
+      background: #f0f9ff;
+      color: #0284c7;
+      border: 1px solid #bae6fd;
+    }
+    .table {
+      color: var(--text-main) !important;
+    }
+    .table-striped>tbody>tr:nth-of-type(odd)>* {
+      background-color: #f8fafc !important;
+      color: var(--text-main) !important;
+    }
+    .table td, .table th {
+      border-color: var(--card-border) !important;
+    }
+    .list-group-item {
+      background-color: transparent !important;
+      border-color: var(--card-border) !important;
+      color: var(--text-main) !important;
     }
     @media (max-width: 600px) {
       .clinic-info, .card, .dashboard {
@@ -84,6 +185,9 @@
   </style>
 </head>
 <body>
+  <!-- Ambient blur blobs for unique premium background aesthetic -->
+  <div class="ambient-blob-1"></div>
+  <div class="ambient-blob-2"></div>
   <div class="hero-section">
     <div class="alert alert-danger d-inline-block px-4 py-1 mb-3" style="font-size:0.9rem; border-radius:20px;">
       🔒 Restricted Area — Authorised Staff Only

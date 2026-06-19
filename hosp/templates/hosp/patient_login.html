@@ -4,17 +4,70 @@
 <head>
   <title>Patient Login - CureWell Hospital</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Add your custom styles here -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+    }
+    body { 
+      background-color: var(--bg-color); 
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif; 
+      overflow-x: hidden;
+      position: relative;
+    }
+    /* Ambient Blur Blobs in background */
+    .ambient-blob-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, rgba(14, 165, 233, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .ambient-blob-2 {
+      position: absolute;
+      top: 40%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, rgba(20, 184, 166, 0) 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
     .hero-section {
-      background: linear-gradient(to right, #007bff, #6610f2);
-      color: white;
+      background: radial-gradient(circle at 50% 120%, rgba(14, 165, 233, 0.08) 0%, rgba(248, 250, 252, 1) 100%);
+      border-bottom: 1px solid var(--card-border);
+      color: #0f172a;
       padding: 4rem 2rem;
       text-align: center;
       position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
     }
-    .card { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); margin: 20px 0; }
+    .hero-section h1 {
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #0f172a 30%, #0369a1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card { 
+      background: var(--card-bg) !important;
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border) !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04) !important; 
+      margin: 20px 0; 
+      border-radius: 16px;
+      color: var(--text-main);
+    }
     .dashboard { display: none; }
     .language-switcher {
       position: absolute;
@@ -23,27 +76,32 @@
       width: 120px;
     }
     .clinic-info {
-      background-color: #ffffff;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
       padding: 2rem;
       margin: 2rem auto;
       text-align: center;
       max-width: 800px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
     }
     footer {
-      background-color: #343a40;
-      color: #fff;
-      padding: 1.5rem 0;
+      background-color: #ffffff;
+      color: #64748b;
+      padding: 2rem 0;
       text-align: center;
-      margin-top: 3rem;
+      margin-top: 4rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      border-top: 1px solid var(--card-border);
+    }
+    footer p {
+      margin-bottom: 0.5rem;
     }
 
     /* Redesigned Appointment Layout */
     .nav-pills .nav-link {
-      color: #495057;
+      color: #475569;
       font-weight: 500;
       border-radius: 30px;
       padding: 0.4rem 1.2rem;
@@ -52,32 +110,35 @@
       border: 1px solid transparent;
     }
     .nav-pills .nav-link.active {
-      background-color: #0d6efd;
-      color: #fff;
+      background: #0284c7;
+      color: #ffffff;
+      font-weight: 600;
     }
     .nav-pills .nav-link:not(.active):hover {
-      background-color: #e9ecef;
-      border-color: #dee2e6;
+      background-color: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #0f172a;
     }
     
     .appointment-card {
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--card-border);
       border-radius: 12px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
-      background-color: #fff;
+      background-color: #ffffff;
       overflow: hidden;
       margin-bottom: 1.25rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
       max-width: 100%;
     }
     .appointment-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 12px 28px rgba(14, 165, 233, 0.08);
+      border-color: rgba(14, 165, 233, 0.3);
     }
     
     .app-date-block {
-      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
-      color: #0369a1;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(20, 184, 166, 0.08));
+      color: #0284c7;
       padding: 1.25rem;
       text-align: center;
       min-width: 110px;
@@ -86,7 +147,7 @@
       justify-content: center;
       align-items: center;
       font-weight: 700;
-      border-right: 1px solid #e2e8f0;
+      border-right: 1px solid var(--card-border);
     }
     .app-date-day {
       font-size: 1.6rem;
@@ -103,7 +164,7 @@
       font-size: 0.8rem;
       margin-top: 6px;
       font-weight: 500;
-      color: #334155;
+      color: #475569;
     }
     
     .app-details-block {
@@ -118,7 +179,7 @@
     }
     .app-reason-text {
       font-size: 0.875rem;
-      color: #64748b;
+      color: #475569;
       margin-bottom: 0;
       font-style: italic;
     }
@@ -130,7 +191,7 @@
       justify-content: center;
       align-items: flex-end;
       min-width: 220px;
-      border-left: 1px dashed #e2e8f0;
+      border-left: 1px dashed var(--card-border);
       gap: 8px;
     }
     
@@ -141,28 +202,32 @@
       border-radius: 9999px;
     }
     .badge-confirmed {
-      background-color: #d1e7dd;
-      color: #0f5132;
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
     }
     .badge-pending {
-      background-color: #fff3cd;
-      color: #664d03;
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
     }
     .badge-rejected {
-      background-color: #f8d7da;
-      color: #842029;
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
     }
     .badge-canceled {
-      background-color: #e2e3e5;
-      color: #41464b;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
     }
 
     .badge-token {
       font-size: 0.8rem;
       font-weight: 500;
-      background-color: #f1f5f9;
-      color: #475569;
-      border: 1px solid #cbd5e1;
+      background-color: #f0f9ff;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
       border-radius: 6px;
       padding: 2px 8px;
     }
@@ -174,7 +239,7 @@
       }
       .app-date-block {
         border-right: none;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--card-border);
         flex-direction: row;
         width: 100%;
         min-width: 100%;
@@ -189,7 +254,7 @@
       }
       .app-meta-block {
         border-left: none;
-        border-top: 1px dashed #e2e8f0;
+        border-top: 1px dashed var(--card-border);
         align-items: flex-start;
         width: 100%;
         min-width: 100%;
@@ -204,45 +269,46 @@
     .app-empty-state {
       padding: 3rem 1.5rem;
       text-align: center;
-      background-color: #f8fafc;
+      background-color: #ffffff;
       border: 2px dashed #cbd5e1;
       border-radius: 12px;
     }
     /* Time Slot Grid Styles */
     .slot-card {
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 0.75rem;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      background-color: #fff;
+      background-color: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       user-select: none;
+      color: var(--text-main);
     }
     .slot-card:hover:not(.disabled) {
-      border-color: #0d6efd;
-      background-color: #f0f7ff;
+      border-color: #0284c7;
+      background-color: #f0f9ff;
       transform: translateY(-1px);
     }
     .slot-card.selected {
-      border-color: #0d6efd;
-      background-color: #0d6efd;
-      color: #fff;
-      box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.25);
+      border-color: #0284c7;
+      background-color: #e0f2fe;
+      color: #0369a1;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
     }
     .slot-card.selected .slot-status {
-      color: #e0f2fe !important;
+      color: #0369a1 !important;
     }
     .slot-card.disabled {
-      background-color: #f1f5f9;
+      background-color: #f8fafc;
       border-color: #e2e8f0;
       color: #94a3b8;
       cursor: not-allowed;
-      opacity: 0.7;
+      opacity: 0.6;
     }
     .slot-time {
       font-size: 0.95rem;
@@ -253,9 +319,74 @@
       margin-top: 4px;
       font-weight: 500;
     }
+    
+    /* Inputs Styling */
+    .form-control, .form-select {
+      background-color: var(--input-bg) !important;
+      border: 1px solid var(--input-border) !important;
+      color: var(--text-main) !important;
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      background-color: #ffffff !important;
+      border-color: #0284c7 !important;
+      box-shadow: 0 0 8px rgba(2, 132, 199, 0.15) !important;
+      color: #0f172a !important;
+    }
+    .form-control::placeholder {
+      color: #cbd5e1 !important;
+    }
+    
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+      border: none !important;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3) !important;
+      transform: translateY(-1px);
+    }
+    .btn-outline-primary {
+      border: 1px solid #0284c7 !important;
+      color: #0284c7 !important;
+      background: transparent !important;
+    }
+    .btn-outline-primary:hover {
+      background: #f0f9ff !important;
+      border-color: #0369a1 !important;
+      color: #0369a1 !important;
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: #ffffff !important;
+      color: #475569 !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+    .btn-secondary:hover {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    .table {
+      color: var(--text-main) !important;
+    }
+    .table-striped>tbody>tr:nth-of-type(odd)>* {
+      background-color: #f8fafc !important;
+      color: var(--text-main) !important;
+    }
+    .table td, .table th {
+      border-color: var(--card-border) !important;
+    }
   </style>
 </head>
 <body>
+  <!-- Ambient blur blobs for unique premium background aesthetic -->
+  <div class="ambient-blob-1"></div>
+  <div class="ambient-blob-2"></div>
     <!-- Patient Authentication -->
     <div id="patientAuth" class="container mt-5 dashboard">
         <div class="row justify-content-center">
