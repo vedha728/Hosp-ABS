@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification - CureWell Hospital</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      background-color: #fff;
+      max-width: 500px;
+      width: 100%;
+      padding: 2.5rem;
+      text-align: center;
+    }
+    .icon-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem auto;
+    }
+    .icon-success {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .icon-error {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .btn-login {
+      background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1.5rem;
+    }
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="result-card">
+    {% if success %}
+      <div class="icon-container icon-success">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+        </svg>
+      </div>
+      <h3 class="fw-bold text-success mb-3">Verification Successful</h3>
+      <p class="text-secondary">{{ message }}</p>
+      <a href="/patient_login/" class="btn-login">Go to Patient Login</a>
+    {% else %}
+      <div class="icon-container icon-error">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </div>
+      <h3 class="fw-bold text-danger mb-3">Verification Failed</h3>
+      <p class="text-secondary">{{ message }}</p>
+      <a href="/patient_login/?action=signup" class="btn btn-outline-secondary px-4 py-2 mt-3" style="border-radius: 8px;">Try Registering Again</a>
+    {% endif %}
+  </div>
+
+</body>
+</html>

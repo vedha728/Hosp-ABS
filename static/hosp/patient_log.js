@@ -67,22 +67,55 @@ function showPatientNotification() {
   }
 }
   
+let captchaAnswer = 0;
+function generateCaptcha() {
+  const captchaLabel = document.getElementById('captchaLabel');
+  if (!captchaLabel) return;
+  const num1 = Math.floor(Math.random() * 9) + 1;
+  const num2 = Math.floor(Math.random() * 9) + 1;
+  captchaAnswer = num1 + num2;
+  captchaLabel.innerHTML = `Security Question: What is ${num1} + ${num2}?`;
+  const captchaInput = document.getElementById('captchaInput');
+  if (captchaInput) captchaInput.value = '';
+}
+
 async function handleSignup(event) {
   event.preventDefault();
+
+  // Validate passwords match
+  const password = document.getElementById('signupPassword').value;
+  const confirmPassword = document.getElementById('signupConfirmPassword').value;
+  if (password !== confirmPassword) {
+    alert('Error: Passwords do not match.');
+    return;
+  }
+
+  // Validate CAPTCHA
+  const userCaptcha = document.getElementById('captchaInput').value;
+  if (parseInt(userCaptcha) !== captchaAnswer) {
+    alert('Error: Incorrect answer to security question.');
+    generateCaptcha();
+    return;
+  }
+
   const signupBtn = document.getElementById('patientSignupBtn');
   signupBtn.disabled = true;
   signupBtn.innerHTML = `<span class='spinner-border spinner-border-sm'></span> Signing up...`;
 
   const formData = new FormData(event.target);
   const email = formData.get('email').trim();
-  const password = formData.get('password');
+  const first_name = formData.get('first_name').trim();
+  const last_name = formData.get('last_name').trim();
+  const mobile = formData.get('mobile').trim();
+  const age = formData.get('age') ? parseInt(formData.get('age')) : null;
+  const blood_group = formData.get('blood_group');
 
   try {
     const csrftoken = getCookie('csrftoken');
     const response = await fetch('/api/register/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json','X-CSRFToken': csrftoken },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, first_name, last_name, mobile, age, blood_group }),
     });
 
     if (!response.ok) {
@@ -97,6 +130,7 @@ async function handleSignup(event) {
 
   } catch (error) {
     alert('Error: ' + error.message);
+    generateCaptcha();
   } finally {
     signupBtn.disabled = false;
     signupBtn.innerHTML = 'Sign Up';
@@ -143,46 +177,6 @@ async function handlePatientLogin(event) {
   } finally {
     loginBtn.disabled = false;
     loginBtn.innerHTML = 'Login';
-  }
-}
-
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB in bytes
-async function uploadMedicalRecord(event) {
-  event.preventDefault();
-  const fileInput = document.getElementById('medicalRecordFile'); // Correct input ID
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert('Please select a file to upload.');
-    return;
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    alert('File size exceeds 1MB. Please select a smaller file or compress it.');
-    return;
-  }
-  const formData = new FormData();
-  formData.append('file', file);
-  // email no longer sent in formData — server reads from session
-  const csrftoken = getCookie('csrftoken');
-  const statusDiv = document.getElementById('uploadStatus');
-
-  try {
-    const response = await fetch('/api/upload-medical-record/', {
-      method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken },
-      body: formData  // email removed from formData — server reads from session
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      statusDiv.innerHTML = `<small style="color:green;">${data.message}</small>`;
-      fileInput.value = '';
-    } else {
-      const error = await response.json();
-      statusDiv.innerHTML = `<small style="color:red;">Error: ${error.error || 'Upload failed'}</small>`;
-    }
-  } catch (error) {
-    statusDiv.innerHTML = `<small style="color:red;">Error: ${error.message}</small>`;
   }
 }
 
@@ -407,7 +401,7 @@ async function loadPatientAppointments() {
       document.getElementById('patientAppointments').innerHTML =
         filteredAppointments.length > 0
           ? filteredAppointments.map(app => {
-              const service = app.doctor_name || app.service;
+              const service = app.service_name || app.service;
               const date = app.appointment_date || app.date;
               const time = app.appointment_time || app.time;
               const status = app.status || 'Pending';
@@ -422,7 +416,7 @@ async function loadPatientAppointments() {
                 statusMessage = 'Awaiting receptionist confirmation.';
                 statusClass = 'text-warning fw-semibold';
               } else if (status === 'Rejected') {
-                statusMessage = 'Appointment was declined by staff.';
+                statusMessage = `Appointment was declined by staff.${app.rejection_reason ? ` (Reason: ${app.rejection_reason})` : ''}`;
                 statusClass = 'text-danger fw-bold';
               } else if (status === 'Canceled') {
                 statusMessage = 'Appointment has been cancelled.';
@@ -520,7 +514,7 @@ async function bookAppointment(event) {
         'X-CSRFToken': csrftoken,
       },
       body: JSON.stringify({
-        doctor_name: serviceType,
+        service_name: serviceType,
         reason: reason,
         appointment_date: appointmentDate,
         appointment_time: appointmentTime,
@@ -614,7 +608,6 @@ async function logout() {
   window.location.href = '/';
 }
 
-document.getElementById('medicalRecordForm').addEventListener('submit', uploadMedicalRecord);
 
 
 const TIME_SLOTS = [
@@ -666,13 +659,20 @@ function renderSlotStatusList(date, appointments) {
   const timeInput = document.getElementById('appointmentTime');
   if (timeInput) timeInput.value = '';
 
+  const selectedService = document.getElementById('serviceType').value;
+
   TIME_SLOTS.forEach(slot => {
-    // Count existing appointments for this slot on the selected date
+    // Count existing appointments for this slot, department, and date
     const count = appointments.filter(app => {
       const appDate = app.date || app.appointment_date;
       const appTime = app.time || app.appointment_time;
       const status = app.status || 'Pending';
-      return appDate === date && appTime === slot && status !== 'Canceled';
+      const appService = app.service_name || app.service;
+      return appDate === date && 
+             appTime === slot && 
+             appService === selectedService && 
+             status !== 'Canceled' && 
+             status !== 'Rejected';
     }).length;
 
     let statusText = '';
@@ -733,6 +733,10 @@ async function updateSlotStatusesForSelectedDate() {
 }
 
 document.getElementById('appointmentDate').addEventListener('change', updateSlotStatusesForSelectedDate);
+const serviceTypeField = document.getElementById('serviceType');
+if (serviceTypeField) {
+  serviceTypeField.addEventListener('change', updateSlotStatusesForSelectedDate);
+}
 document.addEventListener('DOMContentLoaded', function(){
   const dateField = document.getElementById('appointmentDate');
   if (dateField) {
@@ -743,6 +747,7 @@ document.addEventListener('DOMContentLoaded', function(){
     dateField.min = `${yyyy}-${mm}-${dd}`;
     if (dateField.value) updateSlotStatusesForSelectedDate();
   }
+  generateCaptcha();
 });
 
 // --- Feedback & Ratings (inside patient dashboard) ---
@@ -778,10 +783,11 @@ async function renderFeedbackList() {
     }
     feedbackListDiv.innerHTML = feedbacks.map(f => `
       <div class="border rounded p-2 mb-2">
-        <strong>${f.doctor}</strong>
+        <strong>${f.service_name}</strong>
         <span class="text-warning ms-1">${'&#9733;'.repeat(f.rating)}${'&#9734;'.repeat(5 - f.rating)}</span>
         <small class="text-muted ms-2">${f.submitted_at}</small><br/>
-        <span>${f.text}</span>
+        <span>${f.text}</span><br/>
+        <small class="text-secondary">— By ${f.patient_name || 'Anonymous'}</small>
       </div>
     `).join('');
   } catch (err) {
@@ -793,10 +799,10 @@ async function renderFeedbackList() {
 if (feedbackForm) {
   feedbackForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    const doctor = document.getElementById('feedbackDoctor').value.trim();
+    const serviceName = document.getElementById('feedbackService').value.trim();
     const text = document.getElementById('feedbackText').value.trim();
     const rating = parseInt(feedbackRatingInput.value, 10);
-    if (!doctor || !text || !rating) {
+    if (!serviceName || !text || !rating) {
       feedbackMsg.innerHTML = '<span class="text-danger">Please fill all fields and select a star rating.</span>';
       return;
     }
@@ -804,7 +810,7 @@ if (feedbackForm) {
       const response = await fetch('/api/save-feedback/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ doctor, text, rating })
+        body: JSON.stringify({ service_name: serviceName, text, rating })
       });
       const result = await response.json();
       if (response.ok) {

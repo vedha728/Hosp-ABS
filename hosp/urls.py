@@ -13,7 +13,6 @@ urlpatterns = [
     path('api/login/', views.login_patient, name='api_login'),
     path('api/update-profile/', views.update_patient_profile, name='update_profile'),
     path('api/get-profile/', views.get_patient_profile, name='get_profile'),
-    path('api/upload-medical-record/', views.upload_medical_record, name='upload_medical_record'),  # New
     path('api/book-appointment/', views.book_appointment, name='book_appointment'),
     path('api/reception-login/', views.login_receptionist, name='api_reception_login'),
     path('patient_login/', views.patient_login_view, name='patient_login'),
@@ -29,7 +28,7 @@ urlpatterns = [
     path('api/save-feedback/', views.save_feedback, name='save_feedback'),
     path('api/get-feedbacks/', views.get_feedbacks, name='get_feedbacks'),
     #Email verification
-    #path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
+    path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

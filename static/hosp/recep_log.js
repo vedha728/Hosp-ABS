@@ -4,57 +4,67 @@ let calendarYear = (new Date()).getFullYear();
 let calendarMonth = (new Date()).getMonth();
 let receptionistSelectedDate = null;
 function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 async function handleReceptionLogin(event) {
-  event.preventDefault();
-  console.log('Receptionist login function triggered');
-  const passkey = document.getElementById('receptionPasskey').value;
-  const username = document.getElementById('receptionUser').value;
-  const password = document.getElementById('receptionPass').value;
-  const loginBtn = document.getElementById('receptionLoginBtn');
-  loginBtn.disabled = true;
-  loginBtn.innerHTML = 'Logging in...';
-  try {
-      const response = await fetch('/api/reception-login/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ passkey, username, password })
-    });
-    console.log('Response status:', response.status);
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Login success data:', data);
-      alert('Receptionist logged in successfully');
-      console.log('Before showing dashboard');
-      showSection('receptionDashboard');
+   event.preventDefault();
+   console.log('Receptionist login function triggered');
+   const passkey = document.getElementById('receptionPasskey').value;
+   const username = document.getElementById('receptionUser').value;
+   const password = document.getElementById('receptionPass').value;
+   
+   if (passkey !== '7874') {
+     alert('Please enter the correct passkey.');
+     return;
+   }
+   if (!username || !password) {
+     alert('Please enter both username and password.');
+     return;
+   }
+   
+   const loginBtn = document.getElementById('receptionLoginBtn');
+   loginBtn.disabled = true;
+   loginBtn.innerHTML = 'Logging in...';
+  try {
+      const response = await fetch('/api/reception-login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ passkey, username, password })
+    });
+    console.log('Response status:', response.status);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Login success data:', data);
+      alert('Receptionist logged in successfully');
+      console.log('Before showing dashboard');
+      showSection('receptionDashboard');
       console.log('After showing dashboard');
       renderCalendar(receptionistSelectedDate); // draw calendar
       loadAppointments();                        // fetch from backend
       loadReceptionistNotifications();
-    } else {
-      const error = await response.json();
-      console.log('Login failed error:', error);
-      alert("Login failed: " + (error.error || "Unknown error"));
-    }
-  } catch (err) {
-    console.log('Error during login:', err);
-    alert("Error: " + err.message);
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.innerHTML = 'Login';
-  }
+    } else {
+      const error = await response.json();
+      console.log('Login failed error:', error);
+      alert("Login failed: " + (error.error || "Unknown error"));
+    }
+  } catch (err) {
+    console.log('Error during login:', err);
+    alert("Error: " + err.message);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Login';
+  }
 }
 
 function toggleRejectedSection() {
@@ -133,20 +143,11 @@ async function loadAppointments() {
                 return `
                     <div class="card mb-2 bg-white border-0 shadow-sm"><div class="card-body">
                     <h5 class="fw-bold">${app.patient_email || 'Unknown'}</h5>
-                    <p class="mb-1"><strong>Service:</strong> ${app.doctor || app.doctor_name || 'Not specified'}</p>
+                    <p class="mb-1"><strong>Service:</strong> ${app.service_name || 'Not specified'}</p>
                     <p class="mb-1"><strong>Reason:</strong> ${app.reason || ''}</p>
                     <p class="mb-2"><strong>Requested Date:</strong> ${app.date} at ${app.time}</p>
-                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                        <label class="fw-semibold me-2 mb-0" for="tokenSelect_${app.id}">Assign Token:</label>
-                        <select id="tokenSelect_${app.id}" class="form-select form-select-sm w-auto">
-                        <option value="">Select token</option>
-                        <option value="App01">App01</option>
-                        <option value="App02">App02</option>
-                        <option value="App03">App03</option>
-                        </select>
-                    </div>
                     <div class="d-flex gap-2">
-                        <button onclick="confirmAppointmentWithToken(${app.id})" class="btn btn-sm btn-success px-3">Confirm</button>
+                        <button onclick="confirmAppointment(${app.id})" class="btn btn-sm btn-success px-3">Confirm</button>
                         <button onclick="deleteAppointment(${app.id})" class="btn btn-sm btn-danger px-3">Reject</button>
                     </div>
                     </div></div>
@@ -161,7 +162,7 @@ async function loadAppointments() {
                 return `
                     <div class="card mb-2 bg-white border-0 shadow-sm"><div class="card-body">
                     <h5 class="fw-bold text-success">${app.patient_email || 'Unknown'}</h5>
-                    <p class="mb-1"><strong>Service:</strong> ${app.doctor || app.doctor_name || 'Not specified'}</p>
+                    <p class="mb-1"><strong>Service:</strong> ${app.service_name || 'Not specified'}</p>
                     <p class="mb-1"><strong>Reason:</strong> ${app.reason || ''}</p>
                     <p class="mb-2"><strong>Time Session:</strong> ${app.time}</p>
                     <div>
@@ -182,7 +183,8 @@ async function loadAppointments() {
                       <span class="fw-bold text-danger">${app.patient_email || 'Unknown'}</span>
                       <span class="text-muted small">${app.date} at ${app.time}</span>
                     </div>
-                    <p class="mb-0 text-muted small">Service: ${app.doctor || app.doctor_name || 'Not specified'} | Reason: ${app.reason || 'None'}</p>
+                    <p class="mb-0 text-muted small">Service: ${app.service_name || 'Not specified'} | Reason: ${app.reason || 'None'}</p>
+                    ${app.rejection_reason ? `<p class="mb-0 text-danger small mt-1"><strong>Rejection Reason:</strong> ${app.rejection_reason}</p>` : ''}
                     </div></div>
                 `;
             }).join('');
@@ -194,42 +196,12 @@ async function loadAppointments() {
 }
 
 
-function renderReceptionistAppointments() {
-  console.log("renderReceptionistAppointments ran");
-  console.log('appointments at render:', appointments);
-  let filtered = appointments;
-  if (receptionistSelectedDate) {
-    filtered = appointments.filter(app => app.date === receptionistSelectedDate);
-  }
-  document.getElementById('appointmentsList').innerHTML = filtered.length === 0
-    ? '<p>No appointments for selected date.</p>'
-    : filtered.map((app, index) => {
-      // Appointment No: app01, app02, ... only up to 07
-      const appointmentNo = `app${String(index + 1).padStart(2, '0')}`;
-      // Limit display to first 7 appointments
-      if (index >= 7) return '';
-      return `
-      <div class="card mb-2"><div class="card-body">
-        <h5>${app.patientName || app.patient || 'Unknown'}</h5>
-        <p><strong>Service:</strong> ${app.service}</p>
-        <p><strong>Date:</strong> ${app.date} at ${app.time}</p>
-        <p><strong>Status:</strong> <span class="badge ${app.status === 'Pending' ? 'bg-warning' : 'bg-success'}">${app.status}</span></p>
-        <p><strong>Assigned Doctor:</strong> ${app.doctor || 'Not Assigned'}</p>
-        <div class="d-flex gap-2 align-items-center">
-          <button onclick="confirmAppointmentWithToken(${index})" class="btn btn-sm btn-success">Confirm</button>
-          <button onclick="deleteAppointment(${index})" class="btn btn-sm btn-danger">Reject</button>
-        </div>
-        <div class='mt-2'><strong>Appointment No.:</strong> <span class='badge bg-info'>${appointmentNo}</span></div>
-      </div></div>
-      `;
-    }).join('');
-}
+
 function renderCalendar(selectedDateStr) {
-  const year = calendarYear;
-  const month = calendarMonth;
-  const daysInMonth = getMonthDays(year, month);
-  // Month/Year navigation
-  let monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const year = calendarYear;
+  const month = calendarMonth;
+  const daysInMonth = getMonthDays(year, month);
+  let monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   let html = `<div class='d-flex justify-content-between align-items-center mb-2'>
     <button class='btn btn-sm btn-outline-secondary' onclick='changeCalendarMonth(-1)'>&lt;</button>
     <span class='fw-bold fs-5'>${monthNames[month]} ${year}</span>
@@ -385,14 +357,7 @@ function clearReceptionistNotifications() {
 }
 
 
-async function confirmAppointmentWithToken(appointmentId) {
-  const tokenSelect = document.getElementById(`tokenSelect_${appointmentId}`);
-  const tokenNumber = tokenSelect ? tokenSelect.value : '';
-  if (!tokenNumber) {
-    alert('Please select a token number before confirming.');
-    return;
-  }
-
+async function confirmAppointment(appointmentId) {
   // Find appointment in our global list by id
   const appointment = appointments.find(app => app.id === appointmentId);
   if (!appointment) {
@@ -411,8 +376,7 @@ async function confirmAppointmentWithToken(appointmentId) {
       },
       body: JSON.stringify({
         id: appointmentId,
-        status: 'Confirmed',
-        token_number: tokenNumber
+        status: 'Confirmed'
       })
     });
 
@@ -423,8 +387,10 @@ async function confirmAppointmentWithToken(appointmentId) {
       alert('Error updating appointment: ' + (data.error || 'Unknown error'));
       return;
     }
+
+    const assignedToken = data.token_number || '';
     
-    // Notify patient
+    // Notify patient with the auto-generated token from the server
     await fetch('/api/notify-patient/', {
       method: 'POST',
       headers: {
@@ -433,12 +399,12 @@ async function confirmAppointmentWithToken(appointmentId) {
       },
       body: JSON.stringify({
         email: appointment.patient_email,
-        message: `Your appointment on ${appointment.date} at ${appointment.time} is Confirmed. Token: ${tokenNumber}.`
+        message: `Your appointment on ${appointment.date} at ${appointment.time} is Confirmed. Token: ${assignedToken}.`
       })
     });
 
     appointment.status = 'Confirmed';
-    appointment.token_number = tokenNumber;
+    appointment.token_number = assignedToken;
     loadAppointments();
   } catch (err) {
     console.error('Error calling update-appointment-status:', err);
@@ -447,12 +413,39 @@ async function confirmAppointmentWithToken(appointmentId) {
 }
 
 
-async function deleteAppointment(appointmentId) {
+function deleteAppointment(appointmentId) {
   const appointment = appointments.find(app => app.id === appointmentId);
   if (!appointment) {
     alert('Appointment not found.');
     return;
   }
+  
+  window.appointmentIdToReject = appointmentId;
+  const textarea = document.getElementById('rejectionReasonText');
+  if (textarea) textarea.value = '';
+  const errorEl = document.getElementById('rejectionReasonError');
+  if (errorEl) errorEl.classList.add('d-none');
+  
+  const modalEl = document.getElementById('rejectReasonModal');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  } else {
+    // Fallback if modal is not found
+    const reason = prompt("Please enter the reason for rejection:");
+    if (reason === null) return;
+    const trimmed = reason.trim();
+    if (!trimmed) {
+      alert("Rejection reason is mandatory!");
+      return;
+    }
+    submitRejection(appointmentId, trimmed);
+  }
+}
+
+async function submitRejection(appointmentId, reason) {
+  const appointment = appointments.find(app => app.id === appointmentId);
+  if (!appointment) return;
 
   const csrftoken = getCookie('csrftoken');
 
@@ -463,7 +456,7 @@ async function deleteAppointment(appointmentId) {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
       },
-      body: JSON.stringify({ id: appointmentId })
+      body: JSON.stringify({ id: appointmentId, rejection_reason: reason })
     });
 
     const data = await res.json();
@@ -482,18 +475,16 @@ async function deleteAppointment(appointmentId) {
   }
 }
 
-// Initial calendar and appointments
-//if (document.getElementById('calendarContainer')) {
-  //renderCalendar(null);
-  //renderReceptionistAppointments();
-//}
-
-function receptionistLogout() {
-  // Optionally clear any receptionist info from storage if you save it there
-  localStorage.removeItem('currentReceptionist');
-  // Redirect to home page (or any landing/login page you want)
-  window.location.href = '/';
-  // window.close(); // Only works sometimes, see previous notes
+  async function receptionistLogout() {
+  localStorage.removeItem('currentReceptionist');
+  try {
+    const csrftoken = getCookie('csrftoken');
+    await fetch('/api/logout/', { 
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken }
+    });
+  } catch(e) {}
+  window.location.href = '/';
 }
 
 // --- Patient Feedback ---
@@ -511,10 +502,11 @@ async function loadFeedbacks() {
     container.innerHTML = feedbacks.map(f => `
       <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start">
         <div>
-          <strong>${f.doctor}</strong>
+          <strong>${f.service_name}</strong>
           <span class="text-warning ms-2">${'★'.repeat(f.rating)}${'☆'.repeat(5 - f.rating)}</span>
           <small class="text-muted ms-2">${f.submitted_at}</small>
           <p class="mb-0 mt-1">${f.text}</p>
+          <small class="text-secondary">— By ${f.patient_name || 'Anonymous'}</small>
         </div>
         <span class="badge bg-${f.rating >= 4 ? 'success' : f.rating === 3 ? 'warning' : 'danger'} ms-3">
           ${f.rating}/5
@@ -538,5 +530,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     observer.observe(dashboard, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  // Reject modal confirm handler
+  const confirmRejectBtn = document.getElementById('confirmRejectBtn');
+  if (confirmRejectBtn) {
+    confirmRejectBtn.addEventListener('click', () => {
+      const reason = document.getElementById('rejectionReasonText').value.trim();
+      if (!reason) {
+        const errorEl = document.getElementById('rejectionReasonError');
+        if (errorEl) errorEl.classList.remove('d-none');
+        return;
+      }
+      
+      const modalEl = document.getElementById('rejectReasonModal');
+      if (modalEl) {
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+      }
+      
+      submitRejection(window.appointmentIdToReject, reason);
+    });
   }
 });

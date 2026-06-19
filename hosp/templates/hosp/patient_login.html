@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Patient Login - HealthPoint Clinic</title>
+  <title>Patient Login - CureWell Hospital</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <!-- Add your custom styles here -->
   <style>
@@ -285,8 +285,33 @@
                         <h3 class="text-center">Register</h3>
                         <form onsubmit="handleSignup(event)">
                             <input type="hidden" id="csrftoken" value="{{ csrf_token }}">
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+                                </div>
+                            </div>
                             <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
-                            <input type="password" name="password" class="form-control mb-3" placeholder="Password" required>
+                            <input type="tel" name="mobile" class="form-control mb-3" placeholder="Mobile Number" required>
+                            <div class="row g-2 mb-3">
+                                <div class="col">
+                                    <input type="number" name="age" class="form-control" placeholder="Age" required>
+                                </div>
+                                <div class="col">
+                                    <select name="blood_group" class="form-select" required>
+                                        <option value="">Blood Group</option>
+                                        <option>A+</option><option>A1+</option><option>B+</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="password" id="signupPassword" name="password" class="form-control mb-3" placeholder="Password" required>
+                            <input type="password" id="signupConfirmPassword" class="form-control mb-3" placeholder="Confirm Password" required>
+                            <div class="mb-3 border rounded p-2 bg-light">
+                                <label id="captchaLabel" class="form-label small fw-semibold text-secondary mb-1">Security Question</label>
+                                <input type="number" id="captchaInput" class="form-control" placeholder="Enter answer" required>
+                            </div>
                             <button type="submit" class="btn btn-success w-100" id="patientSignupBtn">Sign Up</button>
                         </form>
                         <p class="text-center mt-3">
@@ -337,15 +362,16 @@
                     <div class="col-md-6">
                       <label for="serviceType" class="form-label small fw-semibold">Select Service</label>
                       <select id="serviceType" class="form-select" required>
-                        <option value="">Select Service</option>
-                        <option>General Checkup</option>
-                        <option>Eye Care</option>
-                        <option>Dental Care</option>
-                        <option>Blood test</option>
-                        <option>Diabetes test</option>
-                        <option>X-ray</option>
-                        <option>PT scan</option>
-                        <option>Vaccination</option> 
+                        <option value="">Select Department / Service</option>
+                        <option>General Medicine (General Checkup)</option>
+                        <option>Cardiology (Heart Care)</option>
+                        <option>Dentistry (Dental Care)</option>
+                        <option>Ophthalmology (Eye Care)</option>
+                        <option>Orthopedics (Bone & Joint Care)</option>
+                        <option>Pediatrics (For Children)</option>
+                        <option>Dermatology (Skin Care)</option>
+                        <option>Gynecology (Women's Health)</option>
+                        <option>Radiology (X-ray & Scans)</option>
                       </select>
                     </div>
                     <div class="col-md-6">
@@ -413,22 +439,7 @@
             </div>
           </div>
 
-          <!-- Upload Past Medical Records -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-              <h4 class="fw-bold mb-3 text-secondary">📁 Upload Medical Records</h4>
-              <form id="medicalRecordForm" enctype="multipart/form-data">
-                <div class="mb-3">
-                  <input type="file" id="medicalRecordFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-                  <div class="form-text small">Max size: 1MB. Formats: PDF, JPG, PNG, DOCX.</div>
-                </div>
-                <div class="text-center mt-3">
-                  <button type="submit" class="btn btn-primary px-5">Upload Record</button>
-                </div>
-                <div id="uploadStatus" class="mt-2"></div>
-              </form>
-            </div>
-          </div>
+
 
           <!-- Feedback & Ratings Section -->
           <div class="card border-0 shadow-sm">
@@ -436,8 +447,8 @@
               <h4 class="fw-bold mb-3 text-secondary">⭐ Feedback & Ratings</h4>
               <form id="feedbackForm">
                 <div class="mb-3">
-                  <label for="feedbackDoctor" class="form-label small fw-semibold">Doctor / Service</label>
-                  <input type="text" class="form-control form-control-sm" id="feedbackDoctor" placeholder="e.g. Dental Care, Dr. Kumar" required />
+                  <label for="feedbackService" class="form-label small fw-semibold">Service Name</label>
+                  <input type="text" class="form-control form-control-sm" id="feedbackService" placeholder="e.g. Dental Care, Eye Care" required />
                 </div>
                 <div class="mb-3">
                   <label for="feedbackText" class="form-label small fw-semibold">Your Feedback</label>
@@ -469,7 +480,7 @@
       </div>
     </div>
 
-    <script src="{% static 'hosp/patient_log.js' %}?v=6"></script>
+    <script src="{% static 'hosp/patient_log.js' %}?v=8"></script>
     <script>
       // Force signup view if action=signup is in the URL
       document.addEventListener('DOMContentLoaded', function() {

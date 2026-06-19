@@ -1,4 +1,3 @@
-
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -13,7 +12,6 @@ class Patient(models.Model):
     blood_group = models.CharField(max_length=10, blank=True)
     mobile = models.CharField(max_length=15, blank=True)
     is_verified = models.BooleanField(default=False)  
-    # add other profile fields
 
     def __str__(self):
         return self.email
@@ -21,27 +19,22 @@ class Patient(models.Model):
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     appointment_date = models.DateField()
-    appointment_time = models.TimeField(default=datetime.time(9, 0))  # import datetime beforehand
-    doctor_name = models.CharField(max_length=100)
+    appointment_time = models.TimeField(default=datetime.time(9, 0))
+    service_name = models.CharField(max_length=100)
     reason = models.TextField(blank=True)
     status = models.CharField(max_length=30, default='Pending')
-    token_number = models.CharField(max_length=10, blank=True, null=True)  # Add this line
-    def __str__(self):
-        return f"Appointment for {self.patient.email} on {self.appointment_date} with Dr. {self.doctor_name}"
-    
-class MedicalRecord(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-    file = models.FileField(upload_to='records/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    token_number = models.CharField(max_length=10, blank=True, null=True)
+    rejection_reason = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.patient.email} - {self.file.name}"
+        return f"Appointment for {self.patient.email} on {self.appointment_date} ({self.service_name})"
 
 class Feedback(models.Model):
-    doctor_or_service = models.CharField(max_length=100)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, null=True, blank=True)
+    service_name = models.CharField(max_length=100)
     feedback_text = models.TextField()
     rating = models.IntegerField()
     submitted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.doctor_or_service} - {self.rating}/5 stars"
+        return f"{self.service_name} - {self.rating}/5 stars"
