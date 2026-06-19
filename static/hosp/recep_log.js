@@ -57,14 +57,41 @@ async function handleReceptionLogin(event) {
   }
 }
 
+function toggleRejectedSection() {
+  const archiveBody = document.getElementById('rejectedAppointmentsList');
+  if (archiveBody) {
+    if (archiveBody.style.display === 'none') {
+      archiveBody.style.display = 'block';
+    } else {
+      archiveBody.style.display = 'none';
+    }
+  }
+}
+window.toggleRejectedSection = toggleRejectedSection;
+
 async function loadAppointments() {
-    const container = document.getElementById('appointmentsList');
-    if (!container) return;
+    const pendingContainer = document.getElementById('pendingAppointmentsList');
+    const confirmedContainer = document.getElementById('confirmedAppointmentsList');
+    const rejectedContainer = document.getElementById('rejectedAppointmentsList');
+    
+    if (!pendingContainer || !confirmedContainer || !rejectedContainer) return;
 
     // If no date yet, default to today
     if (!receptionistSelectedDate) {
         const today = new Date();
         receptionistSelectedDate = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
+    }
+
+    // Update Confirmed Header Date Label
+    const confirmedHeaderTitle = document.getElementById('confirmedHeaderTitle');
+    if (confirmedHeaderTitle) {
+        try {
+            const d = new Date(receptionistSelectedDate);
+            const formatted = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            confirmedHeaderTitle.innerHTML = `✅ Confirmed Schedule (${formatted})`;
+        } catch(e) {
+            confirmedHeaderTitle.innerHTML = `✅ Confirmed Schedule (${receptionistSelectedDate})`;
+        }
     }
 
     const csrftoken = getCookie('csrftoken');
@@ -75,65 +102,94 @@ async function loadAppointments() {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken
             },
-            body: JSON.stringify({ date: receptionistSelectedDate })
+            body: JSON.stringify({ all: true }) // fetch all appointments
         });
 
         const data = await res.json();
 
         if (!res.ok) {
             console.error('Backend error:', data);
-            container.innerHTML = 'Error loading appointments.';
+            pendingContainer.innerHTML = 'Error loading appointments.';
             return;
         }
 
         appointments = Array.isArray(data.appointments) ? data.appointments : [];
 
-        if (appointments.length === 0) {
-            container.innerHTML = 'No appointments for selected date.';
-            return;
-        }
+        // Partition lists
+        const pendingList = appointments.filter(app => app.status === 'Pending');
+        const confirmedList = appointments.filter(app => app.status === 'Confirmed' && app.date === receptionistSelectedDate);
+        const rejectedList = appointments.filter(app => app.status === 'Rejected');
 
-        container.innerHTML = appointments.map((app, index) => {
-        const token = app.token_number || '';          // from backend
-        const isConfirmed = app.status === 'Confirmed';
+        // Update counts
+        document.getElementById('pendingCount').innerText = pendingList.length;
+        document.getElementById('confirmedCount').innerText = confirmedList.length;
+        document.getElementById('rejectedCount').innerText = rejectedList.length;
 
-        return `
-            <div class="card mb-2"><div class="card-body">
-            <h5>${app.patient_email || 'Unknown'}</h5>
-            <p><strong>Service:</strong> ${app.doctor || app.doctor_name || 'Not specified'}</p>
-            <p><strong>Reason:</strong> ${app.reason || ''}</p>
-            <p><strong>Date:</strong> ${app.date} at ${app.time}</p>
-            <p><strong>Status:</strong> 
-                <span class="badge ${isConfirmed ? 'bg-success' : 'bg-warning'}">
-                ${app.status || 'Pending'}
-                </span>
-            </p>
-            <div class='mt-2'>
-                <strong>Appointment Id:</strong> 
-                <span class='badge bg-info'>${token || 'Not assigned'}</span>
-            </div>
-            <div class="d-flex gap-2 align-items-center mb-2">
-                <label class="me-2 mb-0" for="tokenSelect_${index}"><strong>Assign Appointment Id:</strong></label>
-                <select id="tokenSelect_${index}" class="form-select form-select-sm w-auto" ${isConfirmed ? 'disabled' : ''}>
-                <option value="">Select token</option>
-                <option value="App01">App01</option>
-                <option value="App02">App02</option>
-                <option value="App03">App03</option>
-                </select>
-            </div>
+        // Render Pending List (Inbox)
+        pendingContainer.innerHTML = pendingList.length === 0
+            ? '<p class="text-muted mb-0">No pending requests found.</p>'
+            : pendingList.map(app => {
+                const token = app.token_number || '';
+                return `
+                    <div class="card mb-2 bg-white border-0 shadow-sm"><div class="card-body">
+                    <h5 class="fw-bold">${app.patient_email || 'Unknown'}</h5>
+                    <p class="mb-1"><strong>Service:</strong> ${app.doctor || app.doctor_name || 'Not specified'}</p>
+                    <p class="mb-1"><strong>Reason:</strong> ${app.reason || ''}</p>
+                    <p class="mb-2"><strong>Requested Date:</strong> ${app.date} at ${app.time}</p>
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                        <label class="fw-semibold me-2 mb-0" for="tokenSelect_${app.id}">Assign Token:</label>
+                        <select id="tokenSelect_${app.id}" class="form-select form-select-sm w-auto">
+                        <option value="">Select token</option>
+                        <option value="App01">App01</option>
+                        <option value="App02">App02</option>
+                        <option value="App03">App03</option>
+                        </select>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="confirmAppointmentWithToken(${app.id})" class="btn btn-sm btn-success px-3">Confirm</button>
+                        <button onclick="deleteAppointment(${app.id})" class="btn btn-sm btn-danger px-3">Reject</button>
+                    </div>
+                    </div></div>
+                `;
+            }).join('');
 
-            
-            <div class="d-flex gap-2 align-items-center">
-                <button onclick="confirmAppointmentWithToken(${index})" class="btn btn-sm btn-success" ${isConfirmed ? 'disabled' : ''}>Confirm</button>
-                <button onclick="deleteAppointment(${index})" class="btn btn-sm btn-danger" ${isConfirmed ? 'disabled' : ''}>Reject</button>
-            </div>
+        // Render Confirmed List (Daily Schedule)
+        confirmedContainer.innerHTML = confirmedList.length === 0
+            ? `<p class="text-muted mb-0">No confirmed appointments scheduled for ${receptionistSelectedDate}.</p>`
+            : confirmedList.map(app => {
+                const token = app.token_number || '';
+                return `
+                    <div class="card mb-2 bg-white border-0 shadow-sm"><div class="card-body">
+                    <h5 class="fw-bold text-success">${app.patient_email || 'Unknown'}</h5>
+                    <p class="mb-1"><strong>Service:</strong> ${app.doctor || app.doctor_name || 'Not specified'}</p>
+                    <p class="mb-1"><strong>Reason:</strong> ${app.reason || ''}</p>
+                    <p class="mb-2"><strong>Time Session:</strong> ${app.time}</p>
+                    <div>
+                        <strong>Appointment Id:</strong> 
+                        <span class="badge bg-success">${token || 'Not assigned'}</span>
+                    </div>
+                    </div></div>
+                `;
+            }).join('');
 
-            </div></div>
-        `;
-        }).join('');
+        // Render Rejected List (Archive Log)
+        rejectedContainer.innerHTML = rejectedList.length === 0
+            ? '<p class="text-muted mb-0">No rejected appointments.</p>'
+            : rejectedList.map(app => {
+                return `
+                    <div class="card mb-2 bg-light border-0"><div class="card-body py-2">
+                    <div class="d-flex justify-content-between">
+                      <span class="fw-bold text-danger">${app.patient_email || 'Unknown'}</span>
+                      <span class="text-muted small">${app.date} at ${app.time}</span>
+                    </div>
+                    <p class="mb-0 text-muted small">Service: ${app.doctor || app.doctor_name || 'Not specified'} | Reason: ${app.reason || 'None'}</p>
+                    </div></div>
+                `;
+            }).join('');
+
     } catch (err) {
         console.error('Error loading appointments:', err);
-        container.innerHTML = 'Error loading appointments.';
+        pendingContainer.innerHTML = 'Error loading appointments.';
     }
 }
 
@@ -257,66 +313,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
-
-  // 3. Attach appointment form submission handler, if present
-  const form = document.getElementById('addAppointmentForm');
-  if (form) {
-    form.onsubmit = function(e) {
-      e.preventDefault();
-      const email = document.getElementById('modalPatientEmail').value.trim();
-      const service = document.getElementById('modalServiceType').value;
-      const date = document.getElementById('modalAppointmentDate').value;
-      const time = document.getElementById('modalAppointmentTime').value;
-
-
-      if (!email || !service || !date || !time) {
-        document.getElementById('addAppointmentStatus').innerHTML = '<span class="text-danger">All fields are required.</span>';
-        return;
-      }
-
-
-      // Attempt to get patient name from available patients
-      let patientName = email;
-      if (window.patients && Array.isArray(window.patients)) {
-        const found = window.patients.find(p => p.email === email);
-        if (found && found.profile && found.profile.firstName) {
-          patientName = `${found.profile.firstName} ${found.profile.lastName || ''}`.trim();
-        }
-      }
-
-
-      // Sync local storage and global appointments array
-      appointments = JSON.parse(localStorage.getItem('appointments')) || [];
-      appointments.push({
-        patient: email,
-        patientName,
-        service,
-        date,
-        time,
-        status: 'Pending',
-        doctor: ''
-      });
-      localStorage.setItem('appointments', JSON.stringify(appointments));
-
-
-      // Add notification for receptionist
-      const newNotification = {
-        message: `New appointment booked by ${patientName} for ${service} on ${date} at ${time}.`,
-        timestamp: new Date().toISOString()
-      };
-      let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
-      receptionistNotifications.unshift(newNotification);
-      localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
-      loadReceptionistNotifications(); // <-- Add this line here
-      // Show success message and update UI after a short delay
-      document.getElementById('addAppointmentStatus').innerHTML = '<span class="text-success">Appointment added.</span>';
-      setTimeout(() => {
-        closeAddAppointmentModal();
-        renderAppointmentsWrapper();
-      }, 800);
-    };
-  }
 });
 
 
@@ -383,40 +379,24 @@ function changeCalendarYear(year) {
   loadAppointments();       // use backend
 }
 
-// Show Add Appointment Modal
-function showAddAppointmentModal() {
-  console.log('Add Appointment modal - visible dashboard:', document.querySelector('.dashboard[style*="block"]')?.id);
-  document.getElementById('addAppointmentModal').style.display = 'block';
-  document.getElementById('addAppointmentModal').style.zIndex = '1055'; // Optional, ensure above dashboards
-  document.body.classList.add('modal-open');
-  document.getElementById('addAppointmentForm').reset();
-  document.getElementById('addAppointmentStatus').innerHTML = '';
-}
-// Close Add Appointment Modal
-function closeAddAppointmentModal() {
-  document.getElementById('addAppointmentModal').style.display = 'none';
-  document.body.classList.remove('modal-open');
-  document.getElementById('addAppointmentForm').reset();
-  document.getElementById('addAppointmentStatus').innerHTML = '';
-}
 function clearReceptionistNotifications() {
   localStorage.removeItem('receptionistNotifications');
   document.getElementById('notificationsList').innerHTML = '<p>No notifications.</p>';
 }
 
 
-async function confirmAppointmentWithToken(index) {
-  const tokenSelect = document.getElementById(`tokenSelect_${index}`);
+async function confirmAppointmentWithToken(appointmentId) {
+  const tokenSelect = document.getElementById(`tokenSelect_${appointmentId}`);
   const tokenNumber = tokenSelect ? tokenSelect.value : '';
   if (!tokenNumber) {
     alert('Please select a token number before confirming.');
     return;
   }
 
-  const appointment = appointments[index];
-  if (!appointment || !appointment.id) {
-    alert('Appointment id missing; cannot update.');
-    console.log('appointment at index', index, appointment);
+  // Find appointment in our global list by id
+  const appointment = appointments.find(app => app.id === appointmentId);
+  if (!appointment) {
+    alert('Appointment missing; cannot update.');
     return;
   }
 
@@ -430,7 +410,7 @@ async function confirmAppointmentWithToken(index) {
         'X-CSRFToken': csrftoken
       },
       body: JSON.stringify({
-        id: appointment.id,
+        id: appointmentId,
         status: 'Confirmed',
         token_number: tokenNumber
       })
@@ -443,19 +423,20 @@ async function confirmAppointmentWithToken(index) {
       alert('Error updating appointment: ' + (data.error || 'Unknown error'));
       return;
     }
-    // 1) NOTIFY PATIENT HERE
+    
+    // Notify patient
     await fetch('/api/notify-patient/', {
-    method: 'POST',
-    headers: {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
-    },
-    body: JSON.stringify({
+      },
+      body: JSON.stringify({
         email: appointment.patient_email,
         message: `Your appointment on ${appointment.date} at ${appointment.time} is Confirmed. Token: ${tokenNumber}.`
-    })
+      })
     });
-    // Update local copy and refresh UI from backend
+
     appointment.status = 'Confirmed';
     appointment.token_number = tokenNumber;
     loadAppointments();
@@ -466,10 +447,10 @@ async function confirmAppointmentWithToken(index) {
 }
 
 
-async function deleteAppointment(index) {
-  const appointment = appointments[index];
-  if (!appointment || !appointment.id) {
-    alert('Appointment not found in list.');
+async function deleteAppointment(appointmentId) {
+  const appointment = appointments.find(app => app.id === appointmentId);
+  if (!appointment) {
+    alert('Appointment not found.');
     return;
   }
 
@@ -482,7 +463,7 @@ async function deleteAppointment(index) {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
       },
-      body: JSON.stringify({ id: appointment.id })
+      body: JSON.stringify({ id: appointmentId })
     });
 
     const data = await res.json();
@@ -493,9 +474,8 @@ async function deleteAppointment(index) {
       return;
     }
 
-    // OPTIONAL: notify patient (local UI only, or via status they’ll see)
     appointment.status = 'Rejected';
-    loadAppointments();  // reload list with Rejected status
+    loadAppointments();
   } catch (err) {
     console.error('Error calling receptionist-reject:', err);
     alert('Network error while rejecting appointment.');
@@ -507,22 +487,6 @@ async function deleteAppointment(index) {
   //renderCalendar(null);
   //renderReceptionistAppointments();
 //}
-// This code runs when an appointment is booked successfully:
-function onAppointmentBooked(patientName, serviceType, appointmentDate, appointmentTime) {
-  const newNotification = {
-    message: `New appointment booked by ${patientName} for ${serviceType} on ${appointmentDate} at ${appointmentTime}.`,
-    timestamp: new Date().toISOString()
-  };
-
-  // Fetch existing notifications
-  let receptionistNotifications = JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
-  // Add the new notification at the start (or end)
-  receptionistNotifications.unshift(newNotification);
-  // Save back to localStorage
-  localStorage.setItem('receptionistNotifications', JSON.stringify(receptionistNotifications));
-  // Refresh UI
-  loadReceptionistNotifications();
-}
 
 function receptionistLogout() {
   // Optionally clear any receptionist info from storage if you save it there

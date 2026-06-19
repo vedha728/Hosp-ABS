@@ -4,7 +4,7 @@ from rest_framework import status
 from .serializers import PatientSerializer
 from .models import MedicalRecord, Patient, Appointment, Feedback
 from django.contrib.auth.hashers import check_password
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.mail import send_mail
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -30,7 +30,7 @@ def home(request):
     return render(request, 'hosp/index.html')
 
 def register(request):
-    return render(request, 'hosp/register.html')
+    return redirect('/patient_login/?action=signup')
 
 
 @api_view(['POST'])
@@ -206,15 +206,20 @@ def get_all_appointments(request):
         try:
             body = json.loads(request.body.decode('utf-8'))
             date_str = body.get("date")
-            if not date_str:
-                return JsonResponse({"appointments": []})
-            # Parse the string date (e.g., "2025-10-19") to a date object
-            try:
-                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-            except Exception:
-                return JsonResponse({"appointments": [], "error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+            fetch_all = body.get("all", False)
 
-            appointments = Appointment.objects.filter(appointment_date=date_obj)
+            if fetch_all:
+                appointments = Appointment.objects.all().order_by('appointment_date', 'appointment_time')
+            else:
+                if not date_str:
+                    return JsonResponse({"appointments": []})
+                # Parse the string date (e.g., "2025-10-19") to a date object
+                try:
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                except Exception:
+                    return JsonResponse({"appointments": [], "error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
+
+                appointments = Appointment.objects.filter(appointment_date=date_obj).order_by('appointment_time')
             output = []
             for app in appointments:
                 try:
@@ -317,7 +322,7 @@ def receptionist_reject_appointment(request):
                     f'Service: {app.doctor_name}\n'
                     f'Date: {app.appointment_date}\n\n'
                     f'Please contact us or book a new appointment.\n'
-                    f'Phone: +91 85478 96547\n\n'
+                    f'Phone: 04373-233666 or 8248917871\n\n'
                     f'Regards,\nHealthPoint Clinic'
                 )
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,

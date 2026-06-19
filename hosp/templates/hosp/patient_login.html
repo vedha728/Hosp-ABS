@@ -22,26 +22,6 @@
       right: 20px;
       width: 120px;
     }
-    footer {
-      background-color: #343a40;
-      color: #fff;
-      padding: 0.5rem 0;         /* Lower vertical padding! */
-      text-align: center;
-      width: 800px;               /* Match your main card/container width */
-      margin: 2rem auto 0 auto;   /* Top margin, centered */
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08); /* Subtle shadow */
-      position: static;           /* Let content push it down, don't block */
-      font-size: 1rem;
-      border-top: 2px solid #eee;
-    }
-    @media (max-width: 900px) {
-        footer {
-            width: 96vw;
-            border-radius: 0;
-        font-size: 0.95rem;
-      }
-    }
     .clinic-info {
       background-color: #ffffff;
       padding: 2rem;
@@ -56,10 +36,222 @@
       color: #fff;
       padding: 1.5rem 0;
       text-align: center;
-      position: fixed;
-      bottom: 0;
+      margin-top: 3rem;
       width: 100%;
-      left: 0;
+      font-size: 1rem;
+    }
+
+    /* Redesigned Appointment Layout */
+    .nav-pills .nav-link {
+      color: #495057;
+      font-weight: 500;
+      border-radius: 30px;
+      padding: 0.4rem 1.2rem;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+    }
+    .nav-pills .nav-link.active {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+    .nav-pills .nav-link:not(.active):hover {
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+    }
+    
+    .appointment-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      background-color: #fff;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      max-width: 100%;
+    }
+    .appointment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    }
+    
+    .app-date-block {
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+      color: #0369a1;
+      padding: 1.25rem;
+      text-align: center;
+      min-width: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      border-right: 1px solid #e2e8f0;
+    }
+    .app-date-day {
+      font-size: 1.6rem;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+    .app-date-month {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+    }
+    .app-time {
+      font-size: 0.8rem;
+      margin-top: 6px;
+      font-weight: 500;
+      color: #334155;
+    }
+    
+    .app-details-block {
+      padding: 1.25rem;
+      flex-grow: 1;
+    }
+    .app-service-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .app-reason-text {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0;
+      font-style: italic;
+    }
+    
+    .app-meta-block {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      min-width: 220px;
+      border-left: 1px dashed #e2e8f0;
+      gap: 8px;
+    }
+    
+    .badge-status {
+      font-size: 0.8rem;
+      padding: 0.35em 0.75em;
+      font-weight: 600;
+      border-radius: 9999px;
+    }
+    .badge-confirmed {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .badge-pending {
+      background-color: #fff3cd;
+      color: #664d03;
+    }
+    .badge-rejected {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .badge-canceled {
+      background-color: #e2e3e5;
+      color: #41464b;
+    }
+
+    .badge-token {
+      font-size: 0.8rem;
+      font-weight: 500;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+    
+    /* Responsive styling for stacked cards on mobile */
+    @media (max-width: 767.98px) {
+      .appointment-card {
+        flex-direction: column;
+      }
+      .app-date-block {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        flex-direction: row;
+        width: 100%;
+        min-width: 100%;
+        padding: 0.75rem;
+        gap: 12px;
+      }
+      .app-date-day {
+        font-size: 1.3rem;
+      }
+      .app-time {
+        margin-top: 0;
+      }
+      .app-meta-block {
+        border-left: none;
+        border-top: 1px dashed #e2e8f0;
+        align-items: flex-start;
+        width: 100%;
+        min-width: 100%;
+        padding: 1rem 1.25rem;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    /* Empty state layout */
+    .app-empty-state {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      background-color: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+    }
+    /* Time Slot Grid Styles */
+    .slot-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+    .slot-card:hover:not(.disabled) {
+      border-color: #0d6efd;
+      background-color: #f0f7ff;
+      transform: translateY(-1px);
+    }
+    .slot-card.selected {
+      border-color: #0d6efd;
+      background-color: #0d6efd;
+      color: #fff;
+      box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.25);
+    }
+    .slot-card.selected .slot-status {
+      color: #e0f2fe !important;
+    }
+    .slot-card.disabled {
+      background-color: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    .slot-time {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .slot-status {
+      font-size: 0.75rem;
+      margin-top: 4px;
+      font-weight: 500;
     }
   </style>
 </head>
@@ -77,7 +269,7 @@
                      <button type="submit" class="btn btn-primary w-100" id="patientLoginBtn">Login</button>
                    </form>
                    <p class="text-center mt-3">New User? 
-                     <a href="#" onclick="showSection('patientSignup')">Create Account</a>
+                     <a href="#" onclick="showSection('patientSignup')">Register</a>
                    </p>
                 </div>
                </div>
@@ -90,7 +282,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="text-center">Create Account</h3>
+                        <h3 class="text-center">Register</h3>
                         <form onsubmit="handleSignup(event)">
                             <input type="hidden" id="csrftoken" value="{{ csrf_token }}">
                             <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
@@ -106,147 +298,187 @@
         </div>
     </div>
     <!-- Patient Dashboard -->
-    <div id="patientDashboard" class="container mt-5 dashboard">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Patient Dashboard</h2>
-        <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+    <div id="patientDashboard" class="container-fluid px-4 py-4 dashboard">
+      <!-- Top Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm border border-light">
+        <h2 class="mb-0 fw-bold text-primary">Patient Dashboard</h2>
+        <button class="btn btn-outline-danger px-4" onclick="logout()">Logout</button>
       </div>
-      <div class="card mt-4">
-        <div class="card-body">
-            <div class="alert alert-info" id="notification" style="display: none;"></div>
-            <h4>Your Appointments</h4>
-            <div id="patientAppointments"></div>
+
+      <div class="row g-4">
+        <!-- LEFT COLUMN: Appointments & Booking (6 cols) -->
+        <div class="col-lg-6">
+          <div class="mx-auto ms-lg-auto" style="max-width: 720px;">
+            <!-- Your Appointments -->
+            <div class="card border-0 shadow-sm mb-4 border-start border-primary border-3">
+            <div class="card-body">
+                <div class="alert alert-info" id="notification" style="display: none;"></div>
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h4 class="mb-0 fw-bold">Your Appointments</h4>
+                    <ul class="nav nav-pills" id="appointmentTabs" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-upcoming" onclick="switchAppointmentTab('upcoming')" type="button">Upcoming</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-past" onclick="switchAppointmentTab('past')" type="button">History</button>
+                      </li>
+                    </ul>
+                </div>
+                <div id="patientAppointments"></div>
+            </div>
+          </div>
+
+            <!-- Appointment Booking -->
+            <div class="card border-0 shadow-sm border-start border-success border-3">
+            <div class="card-body">
+                <h4 class="fw-bold mb-3">Book Appointment</h4>
+                <form onsubmit="bookAppointment(event)">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="serviceType" class="form-label small fw-semibold">Select Service</label>
+                      <select id="serviceType" class="form-select" required>
+                        <option value="">Select Service</option>
+                        <option>General Checkup</option>
+                        <option>Eye Care</option>
+                        <option>Dental Care</option>
+                        <option>Blood test</option>
+                        <option>Diabetes test</option>
+                        <option>X-ray</option>
+                        <option>PT scan</option>
+                        <option>Vaccination</option> 
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="appointmentDate" class="form-label small fw-semibold">Select Date</label>
+                      <input type="date" id="appointmentDate" class="form-control" required>
+                    </div>
+                    <div class="col-md-12">
+                      <label for="reasonForVisit" class="form-label small fw-semibold mt-2">Reason for Visit</label>
+                      <textarea id="reasonForVisit" class="form-control" rows="3" placeholder="Describe your reason for visiting the clinic" required></textarea>
+                    </div>
+                    <div class="col-md-12 mt-3">
+                      <label class="form-label small fw-semibold">Select Available Time Slot</label>
+                      <div id="slotGridContainer" class="row row-cols-2 row-cols-md-3 g-2 mb-3">
+                        <div class="col-12 text-muted small"><i class="text-secondary">Please select a date first to view available time slots.</i></div>
+                      </div>
+                      <!-- Hidden input to store chosen slot value -->
+                      <input type="hidden" id="appointmentTime" required>
+                    </div>
+                    <div class="text-center mt-3">
+                      <button type="submit" class="btn btn-success px-5">Book Appointment</button>
+                    </div>
+                  </div>
+                </form>
+            </div>
+          </div>
+          </div>
         </div>
-    </div>
-    <!-- Profile Section -->
-    <div class="card">
-      <div class="card-body">
-        <h4>Personal Details</h4>
-          <form onsubmit="saveProfile(event)">
-            <div class="row g-3">
-              <div class="col-md-3">
-                <input type="text" id="firstName" autocomplete="given-name"class="form-control " placeholder="First Name" required>
-              </div>
-              <div class="col-md-3">
+
+        <!-- RIGHT COLUMN: Sidebar (6 cols) -->
+        <div class="col-lg-6">
+          <div class="mx-auto me-lg-auto" style="max-width: 720px;">
+            <!-- Profile Section -->
+            <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <h4 class="fw-bold mb-3 text-secondary">👤 Personal Details</h4>
+              <form onsubmit="saveProfile(event)">
+                <div class="mb-3">
+                  <label for="firstName" class="form-label small fw-semibold">First Name</label>
+                  <input type="text" id="firstName" autocomplete="given-name" class="form-control" placeholder="First Name" required>
+                </div>
+                <div class="mb-3">
+                  <label for="lastName" class="form-label small fw-semibold">Last Name</label>
                   <input type="text" id="lastName" autocomplete="family-name" class="form-control" placeholder="Last Name" required>
-              </div> 
-              <div class="col-md-3">
-                <input type="number" id="age" class="form-control" placeholder="Age" required>
-              </div>
-              <div class="col-md-3">
-                <select id="bloodGroup" class="form-select" required>
-                  <option value="">Blood Group</option>
-                  <option>A+</option><option>A1+</option><option>B+</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <input type="tel" id="mobile" class="form-control w-50" placeholder="Mobile Number" required>
-              </div>
-              <div class="col-12">
-                <button type="button" id="editProfileBtn" onclick="enableProfileEditing()">Edit Profile</button>
-                <button type="submit" id="saveProfileBtn" disabled>Save Profile</button>
-              </div>
+                </div> 
+                <div class="mb-3">
+                  <label for="age" class="form-label small fw-semibold">Age</label>
+                  <input type="number" id="age" class="form-control" placeholder="Age" required>
+                </div>
+                <div class="mb-3">
+                  <label for="bloodGroup" class="form-label small fw-semibold">Blood Group</label>
+                  <select id="bloodGroup" class="form-select" required>
+                    <option value="">Blood Group</option>
+                    <option>A+</option><option>A1+</option><option>B+</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="mobile" class="form-label small fw-semibold">Mobile Number</label>
+                  <input type="tel" id="mobile" class="form-control" placeholder="Mobile Number" required>
+                </div>
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                  <button type="button" id="editProfileBtn" class="btn btn-outline-primary px-4" onclick="enableProfileEditing()">Edit Profile</button>
+                  <button type="submit" id="saveProfileBtn" class="btn btn-success px-4" disabled>Save Profile</button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
+
+          <!-- Upload Past Medical Records -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <h4 class="fw-bold mb-3 text-secondary">📁 Upload Medical Records</h4>
+              <form id="medicalRecordForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <input type="file" id="medicalRecordFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
+                  <div class="form-text small">Max size: 1MB. Formats: PDF, JPG, PNG, DOCX.</div>
+                </div>
+                <div class="text-center mt-3">
+                  <button type="submit" class="btn btn-primary px-5">Upload Record</button>
+                </div>
+                <div id="uploadStatus" class="mt-2"></div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Feedback & Ratings Section -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <h4 class="fw-bold mb-3 text-secondary">⭐ Feedback & Ratings</h4>
+              <form id="feedbackForm">
+                <div class="mb-3">
+                  <label for="feedbackDoctor" class="form-label small fw-semibold">Doctor / Service</label>
+                  <input type="text" class="form-control form-control-sm" id="feedbackDoctor" placeholder="e.g. Dental Care, Dr. Kumar" required />
+                </div>
+                <div class="mb-3">
+                  <label for="feedbackText" class="form-label small fw-semibold">Your Feedback</label>
+                  <textarea class="form-control form-control-sm" id="feedbackText" rows="3" placeholder="Share your experience..." required></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold d-block">Rating</label>
+                  <div id="starRating" style="font-size:1.8rem; cursor:pointer;" class="d-inline-block">
+                    <span class="star" data-value="1" style="color:#ccc;">★</span>
+                    <span class="star" data-value="2" style="color:#ccc;">★</span>
+                    <span class="star" data-value="3" style="color:#ccc;">★</span>
+                    <span class="star" data-value="4" style="color:#ccc;">★</span>
+                    <span class="star" data-value="5" style="color:#ccc;">★</span>
+                  </div>
+                  <input type="hidden" id="feedbackRating" value="0" />
+                </div>
+                <div class="text-center mt-3">
+                  <button type="submit" class="btn btn-primary px-5">Submit Feedback</button>
+                </div>
+                <div id="feedbackMsg" class="mt-2"></div>
+              </form>
+              <hr/>
+              <h5 class="fw-bold text-muted small mb-2">Recent Feedback</h5>
+              <div id="feedbackList"><em class="text-muted small">Loading...</em></div>
+            </div>
+          </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Upload Past Medical Records -->
-    <div class="card mt-4">
-      <div class="card-body">
-        <h4>Upload Your Past Medical Records</h4>
-        <form id="medicalRecordForm" enctype="multipart/form-data">
-          <div class="mb-3">
-            <input type="file" id="medicalRecordFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" required>
-            <div class="form-text">Max file size: 1MB. Accepted formats: PDF, JPG, PNG, DOC, DOCX.</div>
-          </div>
-          <button type="submit" class="btn btn-primary">Upload</button>
-          <div id="uploadStatus" class="mt-2"></div>
-        </form>
-      </div>
-    </div>
-    <!-- Appointment Booking -->
-    <div class="card mt-4">
-      <div class="card-body">
-          <h4>Book Appointment</h4>
-          <form onsubmit="bookAppointment(event)">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div id="slotStatusList" class="mb-2"></div>
-                <select id="serviceType" class="form-select" required>
-                  <option value="">Select Service</option>
-                  <option>General Checkup</option>
-                  <option>Eye Care</option>
-                  <option>Dental Care</option>
-                  <option>Blood test</option>
-                  <option>Diabetes test</option>
-                  <option>X-ray</option>
-                  <option>PT scan</option>
-                  <option>Vaccination</option> 
-                </select>
-              </div>
-              <div class="col-md-12">
-                <label for="reasonForVisit" class="form-label mt-2">Reason for Visit</label>
-                <textarea id="reasonForVisit" class="form-control" rows="3" placeholder="Describe your reason for visiting the clinic" required></textarea>
-              </div>          
-              <div class="mb-3">
-                <input type="date" id="appointmentDate" class="form-control w-50" required>
-              </div>
-              <div class="mb-3">
-                <select id="appointmentTime" class="form-select w-50" required>
-                  <option value="">Select Time</option>
-                  <option value="09:00-10:00" id="slot-09:00-10:00">9:00 AM – 10:00 AM</option>
-                  <option value="10:00-11:00" id="slot-10:00-11:00">10:00 AM – 11:00 AM</option>
-                  <option value="11:00-12:00" id="slot-11:00-12:00">11:00 AM – 12:00 PM</option>
-                  <option value="12:00-13:00" id="slot-12:00-13:00">12:00 PM – 1:00 PM</option>
-                  <option value="14:00-15:00" id="slot-14:00-15:00">2:00 PM – 3:00 PM</option>
-                  <option value="15:00-16:00" id="slot-15:00-16:00">3:00 PM – 4:00 PM</option>
-                  <option value="16:00-17:00" id="slot-16:00-17:00">4:00 PM – 5:00 PM</option>
-                  <option value="17:00-18:00" id="slot-17:00-18:00">5:00 PM – 6:00 PM</option>
-                </select>
-              </div>
-              <div class="text-center">
-                <button type="submit" class="btn btn-success w-30">Book Appointment</button>
-              </div>
-            </div>
-          </form>
-      </div>
-    </div>
-
-    <!-- Feedback & Ratings Section -->
-    <div class="card mt-4">
-      <div class="card-body">
-        <h4 class="mb-3">⭐ Feedback & Ratings</h4>
-        <form id="feedbackForm">
-          <div class="mb-3">
-            <label for="feedbackDoctor" class="form-label">Doctor / Service</label>
-            <input type="text" class="form-control" id="feedbackDoctor" placeholder="e.g. Eye Care, Dr. Kumar" required />
-          </div>
-          <div class="mb-3">
-            <label for="feedbackText" class="form-label">Your Feedback</label>
-            <textarea class="form-control" id="feedbackText" rows="3" placeholder="Share your experience..." required></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Rating</label>
-            <div id="starRating" style="font-size:1.8rem; cursor:pointer;">
-              <span class="star" data-value="1" style="color:#ccc;">&#9733;</span>
-              <span class="star" data-value="2" style="color:#ccc;">&#9733;</span>
-              <span class="star" data-value="3" style="color:#ccc;">&#9733;</span>
-              <span class="star" data-value="4" style="color:#ccc;">&#9733;</span>
-              <span class="star" data-value="5" style="color:#ccc;">&#9733;</span>
-            </div>
-            <input type="hidden" id="feedbackRating" value="0" />
-          </div>
-          <button type="submit" class="btn btn-primary">Submit Feedback</button>
-          <div id="feedbackMsg" class="mt-2"></div>
-        </form>
-        <hr/>
-        <h5>Recent Feedback</h5>
-        <div id="feedbackList"><em class="text-muted">Loading...</em></div>
-      </div>
-    </div>
-
-    <script src="{% static 'hosp/patient_log.js' %}"></script>
+    <script src="{% static 'hosp/patient_log.js' %}?v=6"></script>
+    <script>
+      // Force signup view if action=signup is in the URL
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('action') === 'signup') {
+          showSection('patientSignup');
+        }
+      });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

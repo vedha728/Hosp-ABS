@@ -126,98 +126,91 @@
       </div>
     </div>
   </div>
-  <!-- Add Appointment Modal -->
-<div class="modal" tabindex="-1" id="addAppointmentModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Add New Appointment</h5>
-        <button type="button" class="btn-close" onclick="closeAddAppointmentModal()"></button>
-      </div>
-      <div class="modal-body">
-        <form id="addAppointmentForm">
-          <div class="mb-2">
-            <label class="form-label">Patient Email (existing or new)</label>
-            <input type="email" id="modalPatientEmail" autocomplete="email" class="form-control" required>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Service</label>
-            <select id="modalServiceType" class="form-select" required>
-              <option value="">Select Service</option>
-              <option>General Checkup</option>
-              <option>Eye Care</option>
-              <option>Dental Care</option>
-              <option>Blood test</option>
-              <option>Diabetes test</option>
-              <option>X-ray</option>
-              <option>PT scan</option>
-              <option>Vaccination</option>
-            </select>
-          </div>
-          <div class="mb-2">
-            <label for="modalReasonForVisit" class="form-label mt-2">Reason for Visit</label>
-            <textarea id="modalReasonForVisit" class="form-control" rows="3" placeholder="Describe your reason for visiting the clinic" required></textarea>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Date</label>
-            <input type="date" id="modalAppointmentDate" class="form-control" required>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Time</label>
-            <select id="modalAppointmentTime" class="form-select w-50" required>
-              <option value="">Select Time</option>
-              <option value="09:00-10:00">9:00 AM – 10:00 AM</option>
-              <option value="10:00-11:00">10:00 AM – 11:00 AM</option>
-              <option value="11:00-12:00">11:00 AM – 12:00 PM</option>
-              <option value="14:00-15:00">2:00 PM – 3:00 PM</option>
-              <option value="15:00-16:00">3:00 PM – 4:00 PM</option>
-              <option value="16:00-17:00">4:00 PM – 5:00 PM</option>
-              <option value="17:00-18:00">5:00 PM – 6:00 PM</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-success w-100">Book Appointment</button>
-        </form>
-        <div id="addAppointmentStatus" class="mt-2"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
   <!-- Receptionist Dashboard -->
-  <div id="receptionDashboard" class="container mt-5 dashboard" style="display:none;">
-    <div class="card p-4 mb-4">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Receptionist Dashboard</h2>
-        <button class="btn btn-outline-danger" onclick="receptionistLogout()">Logout</button>
-      </div>
-      <h2 class="mb-3">Appointment Management</h2>
-      <div class="mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <button type="button" class="btn btn-primary" onclick="showAddAppointmentModal()">+ Add Appointment</button>
-        <div id="calendarContainer" class="w-100 w-md-50"></div>
-      </div>
-      <div id="receptionistNotifications" class="mt-4">
-        <h4>Notifications</h4>
-        <div id="notificationsList"></div>
-        <button onclick="clearReceptionistNotifications()" class="btn btn-danger mt-3">Clear Notifications</button>
-        <h2>Appointment List</h2>
-      </div>
-      <div id="appointmentsList" class="mt-4"></div>
+  <div id="receptionDashboard" class="container-fluid px-4 py-4 dashboard" style="display:none;">
+    <!-- Top Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-3 shadow-sm border border-light">
+      <h2 class="mb-0 fw-bold text-primary">HealthPoint Receptionist Dashboard</h2>
+      <button class="btn btn-outline-danger px-4" onclick="receptionistLogout()">Logout</button>
     </div>
 
-    <!-- Patient Feedback Panel -->
-    <div class="card p-4 mb-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">⭐ Patient Feedback</h4>
-        <button class="btn btn-outline-secondary btn-sm" onclick="loadFeedbacks()">↻ Refresh</button>
+    <div class="row g-4">
+      <!-- LEFT COLUMN: Workspace (8 cols on desktop) -->
+      <div class="col-lg-8">
+        <!-- Notifications Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0 pt-3">
+            <h5 class="fw-bold mb-0 text-secondary">🔔 Notifications Inbox</h5>
+          </div>
+          <div class="card-body">
+            <div id="notificationsList" class="mb-2"></div>
+            <button onclick="clearReceptionistNotifications()" class="btn btn-sm btn-outline-danger mt-2">Clear All Notifications</button>
+          </div>
+        </div>
+
+        <!-- Appointment Lists -->
+        <!-- Pending Requested Appointments (All dates) -->
+        <div class="card border-0 shadow-sm mb-4 border-start border-warning border-3">
+          <div class="card-header bg-warning text-dark fw-bold d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 fw-bold">📥 Requested Appointments (Pending Confirmation)</h5>
+            <span class="badge bg-dark px-3 py-2 rounded-pill" id="pendingCount">0</span>
+          </div>
+          <div class="card-body" id="pendingAppointmentsList" style="max-height: 450px; overflow-y: auto;">
+            <p class="text-muted mb-0">No pending requests found.</p>
+          </div>
+        </div>
+        
+        <!-- Confirmed Schedule (Selected Date on Calendar) -->
+        <div class="card border-0 shadow-sm mb-4 border-start border-success border-3">
+          <div class="card-header bg-success text-white fw-bold d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 fw-bold" id="confirmedHeaderTitle">✅ Confirmed Schedule (Selected Date)</h5>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill" id="confirmedCount">0</span>
+          </div>
+          <div class="card-body" id="confirmedAppointmentsList" style="max-height: 450px; overflow-y: auto;">
+            <p class="text-muted mb-0">No confirmed appointments scheduled for this date.</p>
+          </div>
+        </div>
+        
+        <!-- Rejected Appointments Archive (Collapsible) -->
+        <div class="card border-0 shadow-sm mb-4 border-start border-secondary border-3">
+          <div class="card-header bg-secondary text-white fw-bold d-flex justify-content-between align-items-center py-3" style="cursor: pointer;" onclick="toggleRejectedSection()">
+            <h5 class="mb-0 fw-bold">❌ Rejected Appointments Archive</h5>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill" id="rejectedCount">0</span>
+          </div>
+          <div class="card-body" id="rejectedAppointmentsList" style="display: none; max-height: 350px; overflow-y: auto;">
+            <p class="text-muted mb-0">No rejected appointments.</p>
+          </div>
+        </div>
+
+        <!-- Patient Feedback Panel -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center border-bottom pb-2">
+            <h5 class="fw-bold mb-0 text-secondary">⭐ Patient Feedback</h5>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadFeedbacks()">Refresh</button>
+          </div>
+          <div class="card-body" id="receptionFeedbackList" style="max-height: 350px; overflow-y: auto;">
+            <em class="text-muted">Loading feedback...</em>
+          </div>
+        </div>
       </div>
-      <div id="receptionFeedbackList">
-        <em class="text-muted">Loading feedback...</em>
+
+      <!-- RIGHT COLUMN: Sidebar (4 cols on desktop) -->
+      <div class="col-lg-4">
+        <!-- Calendar Selection Card -->
+        <div class="card border-0 shadow-sm sticky-top" style="top: 24px;">
+          <div class="card-header bg-white border-0 pt-3">
+            <h5 class="fw-bold mb-0 text-secondary">📅 Calendar Date Selector</h5>
+            <small class="text-muted">Click a day to view its confirmed schedule</small>
+          </div>
+          <div class="card-body">
+            <div id="calendarContainer" class="w-100"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="{% static 'hosp/recep_log.js' %}"></script>
+  <script src="{% static 'hosp/recep_log.js' %}?v=3"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
