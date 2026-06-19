@@ -240,3 +240,67 @@ class HMSSafeguardsTestCase(TestCase):
         app.refresh_from_db()
         self.assertEqual(app.status, 'Rejected')
         self.assertEqual(app.rejection_reason, reason_text)
+
+    def test_book_appointment_slot_and_department_validation(self):
+        url_book = reverse('book_appointment')
+
+        # 1. Try to book with invalid department/service name
+        payload_invalid_service = {
+            'appointment_date': '2026-06-20',
+            'appointment_time': '11:00-12:00',
+            'service_name': 'Invalid Fake Service Department',
+            'reason': 'Checkup'
+        }
+        response = self.client.post(url_book, payload_invalid_service, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Invalid service/department selected.')
+
+        # 2. Try to book with invalid time slot format or value
+        payload_invalid_time = {
+            'appointment_date': '2026-06-20',
+            'appointment_time': '11:30 AM',
+            'service_name': 'Cardiology (Heart Care)',
+            'reason': 'Checkup'
+        }
+        response = self.client.post(url_book, payload_invalid_time, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Invalid time slot selected.')
+
+        # 3. Try to book with valid department and time slot. Should succeed.
+        payload_valid = {
+            'appointment_date': '2026-06-20',
+            'appointment_time': '11:00-12:00',
+            'service_name': 'Cardiology (Heart Care)',
+            'reason': 'Checkup'
+        }
+        response = self.client.post(url_book, payload_valid, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_book_appointment_date_validation(self):
+        url_book = reverse('book_appointment')
+
+        # 1. Try to book with date in the past
+        payload_past = {
+            'appointment_date': '2020-01-01',
+            'appointment_time': '11:00-12:00',
+            'service_name': 'Cardiology (Heart Care)',
+            'reason': 'Checkup'
+        }
+        response = self.client.post(url_book, payload_past, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Appointment date cannot be in the past.')
+
+        # 2. Try to book with invalid date format
+        payload_invalid_fmt = {
+            'appointment_date': '20-06-2026',
+            'appointment_time': '11:00-12:00',
+            'service_name': 'Cardiology (Heart Care)',
+            'reason': 'Checkup'
+        }
+        response = self.client.post(url_book, payload_invalid_fmt, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+        self.assertEqual(response.json()['error'], 'Invalid date format. Use YYYY-MM-DD.')

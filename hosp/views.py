@@ -26,6 +26,24 @@ import json
 import os
 from datetime import datetime, timedelta
 
+# Valid options whitelists for slot booking validation
+VALID_TIME_SLOTS = {
+    "09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00",
+    "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00"
+}
+
+PREFIX_MAP = {
+    "General Medicine (General Checkup)": "GEN",
+    "Cardiology (Heart Care)": "CAR",
+    "Dentistry (Dental Care)": "DEN",
+    "Ophthalmology (Eye Care)": "OPH",
+    "Orthopedics (Bone & Joint Care)": "ORT",
+    "Pediatrics (For Children)": "PED",
+    "Dermatology (Skin Care)": "DER",
+    "Gynecology (Women's Health)": "GYN",
+    "Radiology (X-ray & Scans)": "RAD"
+}
+
 # --- Session Auth Helper ---
 def get_logged_in_patient(request):
     """Returns the Patient object for the currently logged-in patient,
@@ -159,9 +177,23 @@ def book_appointment(request):
     service_name = request.data.get('service_name')
     reason = request.data.get('reason')
     appointment_time = request.data.get('appointment_time')
-
     if not (appointment_date and appointment_time and service_name):
         return Response({'error': 'Date, time, and service are required.'}, status=400)
+
+    try:
+        booking_date = datetime.strptime(appointment_date, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return Response({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
+
+    from django.utils import timezone
+    if booking_date < timezone.localdate():
+        return Response({'error': 'Appointment date cannot be in the past.'}, status=400)
+
+    if service_name not in PREFIX_MAP:
+        return Response({'error': 'Invalid service/department selected.'}, status=400)
+
+    if appointment_time not in VALID_TIME_SLOTS:
+        return Response({'error': 'Invalid time slot selected.'}, status=400)
 
     # Server-side check for time slots availability (limit is 3, excluding canceled/rejected ones)
     existing_count = Appointment.objects.filter(
@@ -358,17 +390,7 @@ def get_all_appointments(request):
             return JsonResponse({"appointments": [], "error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request"}, status=405)
 
-PREFIX_MAP = {
-    "General Medicine (General Checkup)": "GEN",
-    "Cardiology (Heart Care)": "CAR",
-    "Dentistry (Dental Care)": "DEN",
-    "Ophthalmology (Eye Care)": "OPH",
-    "Orthopedics (Bone & Joint Care)": "ORT",
-    "Pediatrics (For Children)": "PED",
-    "Dermatology (Skin Care)": "DER",
-    "Gynecology (Women's Health)": "GYN",
-    "Radiology (X-ray & Scans)": "RAD"
-}
+
 
 @csrf_exempt
 def update_appointment_status(request):
