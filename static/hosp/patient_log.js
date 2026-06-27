@@ -65,29 +65,61 @@ document.addEventListener('DOMContentLoaded', function() {
     showSection('patientAuth');  // show patient login form on page load
   }
 });
-function showPatientNotification() {
-  const patient = JSON.parse(localStorage.getItem('currentPatient'));
-  let show = false;
-  let message = '';
-  // Check if patient object exists and has a notification
-  if (patient && patient.notification) {
-    show = true;
-    message = patient.notification;
-    // After showing, clear the notification so it doesn't persist
-    delete patient.notification;
-    localStorage.setItem('currentPatient', JSON.stringify(patient));
-  }
+function renderPatientNotifications(allAppointments) {
   const notifDiv = document.getElementById('notification');
-  if (notifDiv) {
-    if (show) {
-      notifDiv.innerHTML = message;
-      notifDiv.style.display = '';
-    } else {
-      notifDiv.innerHTML = '';
-      notifDiv.style.display = 'none';
-    }
+  if (!notifDiv) return;
+
+  // Retrieve dismissed notification IDs from localStorage
+  let dismissed = JSON.parse(localStorage.getItem('dismissedPatientNotifications')) || [];
+
+  // Filter for Confirmed or Rejected appointments not already dismissed
+  const activeNotifications = allAppointments.filter(app => {
+    return (app.status === 'Confirmed' || app.status === 'Rejected') && !dismissed.includes(app.id);
+  });
+
+  if (activeNotifications.length === 0) {
+    notifDiv.style.display = 'none';
+    notifDiv.innerHTML = '';
+    return;
   }
+
+  // Construct stack of notification messages
+  let html = activeNotifications.map(app => {
+    const isConfirmed = app.status === 'Confirmed';
+    const alertClass = isConfirmed ? 'alert-success' : 'alert-danger';
+    const icon = isConfirmed ? '✅' : '❌';
+    const title = isConfirmed ? 'Appointment Confirmed!' : 'Appointment Declined';
+    const message = isConfirmed 
+      ? `Your appointment for <strong>${app.service}</strong> on <strong>${app.date}</strong> at <strong>${app.time}</strong> has been confirmed. Your token number is <strong>${app.token_number || 'Pending'}</strong>.`
+      : `Your appointment for <strong>${app.service}</strong> on <strong>${app.date}</strong> at <strong>${app.time}</strong> was declined. Reason: <em>${app.rejection_reason || 'No reason provided'}</em>.`;
+
+    return `
+      <div class="alert ${alertClass} alert-dismissible fade show mb-2 border-0 shadow-sm" role="alert" style="border-radius:12px; padding-right: 3rem;">
+        <span class="me-2">${icon}</span>
+        <strong>${title}</strong> — ${message}
+        <button type="button" class="btn-close" onclick="dismissPatientNotification(${app.id})" aria-label="Close" style="padding: 1.1rem 1rem;"></button>
+      </div>
+    `;
+  }).join('');
+
+  notifDiv.innerHTML = html;
+  notifDiv.style.display = 'block';
 }
+
+function dismissPatientNotification(appId) {
+  let dismissed = JSON.parse(localStorage.getItem('dismissedPatientNotifications')) || [];
+  if (!dismissed.includes(appId)) {
+    dismissed.push(appId);
+    localStorage.setItem('dismissedPatientNotifications', JSON.stringify(dismissed));
+  }
+  // Reload appointments to update notifications view
+  loadPatientAppointments();
+}
+
+// Bind to window context
+window.dismissPatientNotification = dismissPatientNotification;
+window.renderPatientNotifications = renderPatientNotifications;
+
   
 let captchaAnswer = 0;
 function generateCaptcha() {
@@ -420,6 +452,7 @@ async function loadPatientAppointments() {
 
     if (response.ok && Array.isArray(data.appointments)) {
       const allAppointments = data.appointments;
+      renderPatientNotifications(allAppointments);
       const todayStr = new Date().toISOString().split('T')[0];
 
       // Filter based on selected tab (Upcoming vs Past)
