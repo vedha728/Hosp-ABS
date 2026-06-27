@@ -201,8 +201,8 @@ def book_appointment(request):
         return Response({'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400)
 
     from django.utils import timezone
-    if booking_date < timezone.localdate():
-        return Response({'error': 'Appointment date cannot be in the past.'}, status=400)
+    if booking_date <= timezone.localdate():
+        return Response({'error': 'Appointments must be booked at least one day in advance.'}, status=400)
 
     if service_name not in PREFIX_MAP:
         return Response({'error': 'Invalid service/department selected.'}, status=400)

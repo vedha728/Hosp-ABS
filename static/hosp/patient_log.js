@@ -832,10 +832,11 @@ if (serviceTypeField) {
 document.addEventListener('DOMContentLoaded', function(){
   const dateField = document.getElementById('appointmentDate');
   if (dateField) {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1); // safe date rollover
+    const yyyy = tomorrow.getFullYear();
+    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const dd = String(tomorrow.getDate()).padStart(2, '0');
     dateField.min = `${yyyy}-${mm}-${dd}`;
     if (dateField.value) updateSlotStatusesForSelectedDate();
   }
