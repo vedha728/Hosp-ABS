@@ -34,7 +34,7 @@ function showSection(sectionId) {
 
   // Extra logic for dashboards
   if (sectionId === 'patientDashboard') {
-    loadPatientAppointments();
+    loadPatientAppointments(true);
   }
   if (sectionId === 'receptionDashboard') {
     renderReceptionistAppointments();
@@ -218,7 +218,7 @@ async function handlePatientLogin(event) {
     await fetchPatientProfile(email);
 
     // Load any additional data like appointments
-    loadPatientAppointments();
+    loadPatientAppointments(true);
 
     event.target.reset();
   } catch (error) {
@@ -424,16 +424,32 @@ function switchAppointmentTab(tabName) {
       btnUpcoming.classList.remove('active');
     }
   }
-  loadPatientAppointments();
+  loadPatientAppointments(false);
 }
 
-async function loadPatientAppointments() {
+let cachedPatientAppointments = null;
+
+async function loadPatientAppointments(forceRefetch = false) {
   const patient = JSON.parse(localStorage.getItem('currentPatient'));
   if (!patient || !patient.email) {
     document.getElementById('patientAppointments').innerHTML =
       '<p>Please log in to view appointments.</p>';
     return;
   }
+
+  // Use cached data for instant tab switching if available
+  if (!forceRefetch && Array.isArray(cachedPatientAppointments)) {
+    renderPatientAppointmentsList(cachedPatientAppointments);
+    return;
+  }
+
+  // Show loading indicator during network fetch
+  document.getElementById('patientAppointments').innerHTML = `
+    <div class="d-flex align-items-center gap-2 text-muted py-3">
+      <span class="spinner-border spinner-border-sm" role="status"></span>
+      <span>Loading appointments...</span>
+    </div>
+  `;
 
   const csrftoken = getCookie('csrftoken');
 
@@ -450,121 +466,8 @@ async function loadPatientAppointments() {
     const data = await response.json();
 
     if (response.ok && Array.isArray(data.appointments)) {
-      const allAppointments = data.appointments;
-      renderPatientNotifications(allAppointments);
-      const todayStr = new Date().toISOString().split('T')[0];
-
-      // Filter based on selected tab (Upcoming vs Past)
-      // Upcoming: Confirmed/Pending with a FUTURE date, OR Pending with a PAST date (needs attention)
-      // Past/History: Confirmed on past date, Rejected, Canceled
-      const filteredAppointments = allAppointments.filter(app => {
-        const date = app.appointment_date || app.date;
-        const status = app.status || 'Pending';
-        const isFutureDate = date >= todayStr;
-        const isPastPending = status === 'Pending' && !isFutureDate;
-        const isUpcoming = (status === 'Confirmed' || status === 'Pending') && isFutureDate;
-        // Past-pending stays in Upcoming tab so patient is aware
-        return activeAppointmentTab === 'upcoming' ? (isUpcoming || isPastPending) : (!isUpcoming && !isPastPending);
-      });
-
-      document.getElementById('patientAppointments').innerHTML =
-        filteredAppointments.length > 0
-          ? filteredAppointments.map(app => {
-              const service = app.service_name || app.service;
-              const date = app.appointment_date || app.date;
-              const time = app.appointment_time || app.time;
-              const status = app.status || 'Pending';
-              const token = app.token_number || null;
-
-              const appId  = app.id || null;
-
-              let statusClass = 'text-muted';
-              let statusMessage = '';
-              const isFutureDate = date >= todayStr;
-              const isPastPending = status === 'Pending' && !isFutureDate;
-
-              if (status === 'Confirmed') {
-                statusMessage = `Confirmed (Token: ${token || 'Pending'})`;
-                statusClass = 'text-success fw-bold';
-              } else if (isPastPending) {
-                statusMessage = '⚠️ No response received. Please contact the clinic.';
-                statusClass = 'text-danger fw-semibold';
-              } else if (status === 'Pending') {
-                statusMessage = 'Awaiting receptionist confirmation.';
-                statusClass = 'text-warning fw-semibold';
-              } else if (status === 'Rejected') {
-                statusMessage = `Appointment was declined by staff.${app.rejection_reason ? ` (Reason: ${app.rejection_reason})` : ''}`;
-                statusClass = 'text-danger fw-bold';
-              } else if (status === 'Canceled') {
-                statusMessage = 'Appointment has been cancelled.';
-                statusClass = 'text-secondary fw-semibold';
-              }
-
-              // Parse date safely to retrieve Month abbreviation and Day value
-              let dayVal = '';
-              let monthVal = '';
-              const parts = date.split('-');
-              if (parts.length === 3) {
-                dayVal = parseInt(parts[2], 10);
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                const mIdx = parseInt(parts[1], 10) - 1;
-                monthVal = months[mIdx] || 'Date';
-              } else {
-                const dateObj = new Date(date);
-                if (!isNaN(dateObj.getTime())) {
-                  dayVal = dateObj.getDate();
-                  monthVal = dateObj.toLocaleString('en-US', { month: 'short' });
-                } else {
-                  dayVal = 'App';
-                  monthVal = 'Date';
-                }
-              }
-
-              let cancelBtnHTML = '';
-              if (isFutureDate && appId) {
-                if (status === 'Pending') {
-                  cancelBtnHTML = `<button onclick="cancelAppointment(${appId}, '${service}', '${date}', '${time}')" class="btn btn-sm btn-outline-danger mt-2">Cancel</button>`;
-                } else if (status === 'Confirmed') {
-                  cancelBtnHTML = `<button class="btn btn-sm btn-outline-secondary mt-2" disabled title="Confirmed appointments cannot be canceled online. Please contact the clinic.">Cancel</button>`;
-                }
-              }
-
-              return `
-                <div class="appointment-card d-flex align-items-stretch">
-                  <div class="app-date-block">
-                    <div class="app-date-day">${dayVal}</div>
-                    <div class="app-date-month">${monthVal}</div>
-                    <div class="app-time">${time}</div>
-                  </div>
-                  <div class="app-details-block d-flex flex-column justify-content-center">
-                    <div class="app-service-title">${service}</div>
-                    <p class="app-reason-text"><strong>Reason:</strong> ${app.reason || 'Regular Visit'}</p>
-                  </div>
-                  <div class="app-meta-block">
-                    <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
-                    ${token ? `<span class="badge-token">Token: ${token}</span>` : ''}
-                    ${statusMessage ? `<div class="small text-end mt-1 ${statusClass}">${statusMessage}</div>` : ''}
-                    ${cancelBtnHTML}
-                  </div>
-                </div>
-              `;
-            }).join('')
-          : `
-            <div class="app-empty-state">
-              <div class="app-empty-icon">📅</div>
-              <h5>No ${activeAppointmentTab === 'upcoming' ? 'upcoming' : 'past'} appointments found</h5>
-              <p class="text-muted small">${
-                activeAppointmentTab === 'upcoming'
-                  ? 'Need to see a doctor? Book an appointment below to get started.'
-                  : 'Your past appointment history will appear here.'
-              }</p>
-              ${
-                activeAppointmentTab === 'upcoming'
-                  ? `<a href="#serviceType" class="btn btn-sm btn-primary mt-2">Book Appointment</a>`
-                  : ''
-              }
-            </div>
-          `;
+      cachedPatientAppointments = data.appointments;
+      renderPatientAppointmentsList(cachedPatientAppointments);
     } else {
       document.getElementById('patientAppointments').innerHTML =
         '<p>No appointments found.</p>';
@@ -573,6 +476,123 @@ async function loadPatientAppointments() {
     document.getElementById('patientAppointments').innerHTML =
       '<p>Error loading appointments.</p>';
   }
+}
+
+function renderPatientAppointmentsList(allAppointments) {
+  renderPatientNotifications(allAppointments);
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  // Filter based on selected tab (Upcoming vs Past)
+  // Upcoming: Confirmed/Pending with a FUTURE date, OR Pending with a PAST date (needs attention)
+  // Past/History: Confirmed on past date, Rejected, Canceled
+  const filteredAppointments = allAppointments.filter(app => {
+    const date = app.appointment_date || app.date;
+    const status = app.status || 'Pending';
+    const isFutureDate = date >= todayStr;
+    const isPastPending = status === 'Pending' && !isFutureDate;
+    const isUpcoming = (status === 'Confirmed' || status === 'Pending') && isFutureDate;
+    // Past-pending stays in Upcoming tab so patient is aware
+    return activeAppointmentTab === 'upcoming' ? (isUpcoming || isPastPending) : (!isUpcoming && !isPastPending);
+  });
+
+  document.getElementById('patientAppointments').innerHTML =
+    filteredAppointments.length > 0
+      ? filteredAppointments.map(app => {
+          const service = app.service_name || app.service;
+          const date = app.appointment_date || app.date;
+          const time = app.appointment_time || app.time;
+          const status = app.status || 'Pending';
+          const token = app.token_number || null;
+
+          const appId  = app.id || null;
+
+          let statusClass = 'text-muted';
+          let statusMessage = '';
+          const isFutureDate = date >= todayStr;
+          const isPastPending = status === 'Pending' && !isFutureDate;
+
+          if (status === 'Confirmed') {
+            statusMessage = `Confirmed (Token: ${token || 'Pending'})`;
+            statusClass = 'text-success fw-bold';
+          } else if (isPastPending) {
+            statusMessage = '⚠️ No response received. Please contact the clinic.';
+            statusClass = 'text-danger fw-semibold';
+          } else if (status === 'Pending') {
+            statusMessage = 'Awaiting receptionist confirmation.';
+            statusClass = 'text-warning fw-semibold';
+          } else if (status === 'Rejected') {
+            statusMessage = `Appointment was declined by staff.${app.rejection_reason ? ` (Reason: ${app.rejection_reason})` : ''}`;
+            statusClass = 'text-danger fw-bold';
+          } else if (status === 'Canceled') {
+            statusMessage = 'Appointment has been cancelled.';
+            statusClass = 'text-secondary fw-semibold';
+          }
+
+          // Parse date safely to retrieve Month abbreviation and Day value
+          let dayVal = '';
+          let monthVal = '';
+          const parts = date.split('-');
+          if (parts.length === 3) {
+            dayVal = parseInt(parts[2], 10);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const mIdx = parseInt(parts[1], 10) - 1;
+            monthVal = months[mIdx] || 'Date';
+          } else {
+            const dateObj = new Date(date);
+            if (!isNaN(dateObj.getTime())) {
+              dayVal = dateObj.getDate();
+              monthVal = dateObj.toLocaleString('en-US', { month: 'short' });
+            } else {
+              dayVal = 'App';
+              monthVal = 'Date';
+            }
+          }
+
+          let cancelBtnHTML = '';
+          if (isFutureDate && appId) {
+            if (status === 'Pending') {
+              cancelBtnHTML = `<button onclick="cancelAppointment(${appId}, '${service}', '${date}', '${time}')" class="btn btn-sm btn-outline-danger mt-2">Cancel</button>`;
+            } else if (status === 'Confirmed') {
+              cancelBtnHTML = `<button class="btn btn-sm btn-outline-secondary mt-2" disabled title="Confirmed appointments cannot be canceled online. Please contact the clinic.">Cancel</button>`;
+            }
+          }
+
+          return `
+            <div class="appointment-card d-flex align-items-stretch">
+              <div class="app-date-block">
+                <div class="app-date-day">${dayVal}</div>
+                <div class="app-date-month">${monthVal}</div>
+                <div class="app-time">${time}</div>
+              </div>
+              <div class="app-details-block d-flex flex-column justify-content-center">
+                <div class="app-service-title">${service}</div>
+                <p class="app-reason-text"><strong>Reason:</strong> ${app.reason || 'Regular Visit'}</p>
+              </div>
+              <div class="app-meta-block">
+                <span class="badge-status badge-${status.toLowerCase()}">${status}</span>
+                ${token ? `<span class="badge-token">Token: ${token}</span>` : ''}
+                ${statusMessage ? `<div class="small text-end mt-1 ${statusClass}">${statusMessage}</div>` : ''}
+                ${cancelBtnHTML}
+              </div>
+            </div>
+          `;
+        }).join('')
+      : `
+        <div class="app-empty-state">
+          <div class="app-empty-icon">📅</div>
+          <h5>No ${activeAppointmentTab === 'upcoming' ? 'upcoming' : 'past'} appointments found</h5>
+          <p class="text-muted small">${
+            activeAppointmentTab === 'upcoming'
+              ? 'Need to see a doctor? Book an appointment below to get started.'
+              : 'Your past appointment history will appear here.'
+          }</p>
+          ${
+            activeAppointmentTab === 'upcoming'
+              ? `<a href="#serviceType" class="btn btn-sm btn-primary mt-2">Book Appointment</a>`
+              : ''
+          }
+        </div>
+      `;
 }
 
 
@@ -615,7 +635,7 @@ async function bookAppointment(event) {
         grid.innerHTML = '<div class="col-12 text-muted small"><i class="text-secondary">Please select a date first to view available time slots.</i></div>';
       }
       // Fetch latest appointments for this patient
-      await loadPatientAppointments();
+      await loadPatientAppointments(true);
     } else {
       throw new Error(data.error || 'Failed to book appointment');
     }
@@ -628,7 +648,7 @@ async function bookAppointment(event) {
     }
   }
 }
-document.addEventListener('DOMContentLoaded', loadPatientAppointments);
+document.addEventListener('DOMContentLoaded', () => loadPatientAppointments(true));
 
 async function cancelAppointment(id, service, date, time) {
   const confirmCancel = confirm(`Are you sure you want to cancel your ${service} appointment on ${date} at ${time}?`);
@@ -649,7 +669,7 @@ async function cancelAppointment(id, service, date, time) {
 
     if (response.ok) {
       alert(data.message || 'Appointment cancelled.');
-      await loadPatientAppointments();
+      await loadPatientAppointments(true);
     } else {
       alert(data.error || 'Could not cancel appointment.');
     }
