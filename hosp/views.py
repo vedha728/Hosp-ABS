@@ -88,12 +88,27 @@ def register_patient(request):
                 f'This link will expire in 24 hours.\n\n'
                 f'Regards,\nCureWell Hospital'
             )
+            html_message = (
+                f'<div style="font-family: sans-serif; color: #0f172a; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">'
+                f'<h2 style="color: #0284c7; margin-bottom: 16px;">Verify Your Account</h2>'
+                f'<p>Dear {patient.first_name or "Patient"},</p>'
+                f'<p>Thank you for registering at <strong>CureWell Hospital</strong>.</p>'
+                f'<p>Please verify your email address by clicking the button below:</p>'
+                f'<p style="margin: 24px 0;"><a href="{verification_link}" style="display: inline-block; padding: 12px 24px; background-color: #0284c7; color: #ffffff; text-decoration: none; border-radius: 30px; font-weight: 600; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);">Verify Email Address</a></p>'
+                f'<p style="font-size: 0.9em; color: #475569; margin-top: 24px;">If the button doesn\'t work, copy and paste this URL into your browser:<br>'
+                f'<a href="{verification_link}" style="color: #0284c7;">{verification_link}</a></p>'
+                f'<hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">'
+                f'<p style="font-size: 0.85em; color: #64748b; margin-bottom: 0;">This link will expire in 24 hours. If you did not register for this account, please ignore this email.</p>'
+                f'<p style="font-size: 0.9em; color: #475569; margin-top: 16px;">Regards,<br><strong>CureWell Hospital</strong></p>'
+                f'</div>'
+            )
             send_mail(
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,
                 [patient.email],
-                fail_silently=False
+                fail_silently=False,
+                html_message=html_message
             )
             return Response({'message': 'Registration successful! Please check your email to verify your account.'}, status=201)
         except Exception as e:
