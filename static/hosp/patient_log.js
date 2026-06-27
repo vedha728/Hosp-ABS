@@ -34,7 +34,6 @@ function showSection(sectionId) {
 
   // Extra logic for dashboards
   if (sectionId === 'patientDashboard') {
-    showPatientNotification();
     loadPatientAppointments();
   }
   if (sectionId === 'receptionDashboard') {
@@ -94,10 +93,10 @@ function renderPatientNotifications(allAppointments) {
       : `Your appointment for <strong>${app.service}</strong> on <strong>${app.date}</strong> at <strong>${app.time}</strong> was declined. Reason: <em>${app.rejection_reason || 'No reason provided'}</em>.`;
 
     return `
-      <div class="alert ${alertClass} alert-dismissible fade show mb-2 border-0 shadow-sm" role="alert" style="border-radius:12px; padding-right: 3rem;">
-        <span class="me-2">${icon}</span>
+      <div class="alert ${alertClass} alert-dismissible fade show mb-2 border-0 shadow-sm" role="alert" style="border-radius:8px; padding: 0.6rem 3rem 0.6rem 1rem; font-size: 0.88rem;">
+        <span class="me-1">${icon}</span>
         <strong>${title}</strong> — ${message}
-        <button type="button" class="btn-close" onclick="dismissPatientNotification(${app.id})" aria-label="Close" style="padding: 1.1rem 1rem;"></button>
+        <button type="button" class="btn-close" onclick="dismissPatientNotification(${app.id})" aria-label="Close" style="padding: 0.8rem 1rem;"></button>
       </div>
     `;
   }).join('');
