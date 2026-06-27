@@ -147,7 +147,7 @@ async function loadAppointments() {
                     <p class="mb-1"><strong>Reason:</strong> ${app.reason || ''}</p>
                     <p class="mb-2"><strong>Requested Date:</strong> ${app.date} at ${app.time}</p>
                     <div class="d-flex gap-2">
-                        <button onclick="confirmAppointment(${app.id})" class="btn btn-sm btn-success px-3">Confirm</button>
+                        <button onclick="confirmAppointment(${app.id}, this)" class="btn btn-sm btn-success px-3">Confirm</button>
                         <button onclick="deleteAppointment(${app.id})" class="btn btn-sm btn-danger px-3">Reject</button>
                     </div>
                     </div></div>
@@ -357,7 +357,7 @@ function clearReceptionistNotifications() {
 }
 
 
-async function confirmAppointment(appointmentId) {
+async function confirmAppointment(appointmentId, btnElement) {
   // Find appointment in our global list by id
   const appointment = appointments.find(app => app.id === appointmentId);
   if (!appointment) {
@@ -366,6 +366,13 @@ async function confirmAppointment(appointmentId) {
   }
 
   const csrftoken = getCookie('csrftoken');
+  
+  let originalText = '';
+  if (btnElement) {
+    originalText = btnElement.innerHTML;
+    btnElement.disabled = true;
+    btnElement.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Confirming...';
+  }
 
   try {
     const res = await fetch('/api/update-appointment-status/', {
@@ -409,6 +416,11 @@ async function confirmAppointment(appointmentId) {
   } catch (err) {
     console.error('Error calling update-appointment-status:', err);
     alert('Network error while updating appointment.');
+  } finally {
+    if (btnElement) {
+      btnElement.disabled = false;
+      btnElement.innerHTML = originalText;
+    }
   }
 }
 

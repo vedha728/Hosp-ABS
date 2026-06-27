@@ -506,6 +506,15 @@ async function bookAppointment(event) {
   const appointmentDate = document.getElementById('appointmentDate').value;
   const appointmentTime = document.getElementById('appointmentTime').value;
   const csrftoken = getCookie('csrftoken');
+  
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  let originalText = '';
+  if (submitBtn) {
+    originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Booking...';
+  }
+
   try {
     const response = await fetch('/api/book-appointment/', {
       method: 'POST',
@@ -535,6 +544,11 @@ async function bookAppointment(event) {
     }
   } catch (error) {
     alert('Error: ' + error.message);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
   }
 }
 document.addEventListener('DOMContentLoaded', loadPatientAppointments);
