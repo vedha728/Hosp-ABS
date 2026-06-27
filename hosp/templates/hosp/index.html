@@ -4,505 +4,803 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CureWell Hospital</title>
+  <title>CureWell Hospital — Compassionate Care, Trusted Health</title>
+  <meta name="description" content="CureWell Hospital in Thanjavur, Tamil Nadu — delivering quality healthcare with compassion since 2010. Book appointments online for General Medicine, Cardiology, Dentistry and more."/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --card-border: #e2e8f0;
-      --primary-glow: #0284c7;
-      --accent-glow: #0ea5e9;
-      --text-main: #0f172a;
-      --text-muted: #475569;
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --blue: #0284c7;
+      --blue-dark: #0369a1;
+      --blue-light: #38bdf8;
+      --teal: #0d9488;
+      --white: #ffffff;
+      --grey-50: #f8fafc;
+      --grey-100: #f1f5f9;
+      --grey-300: #cbd5e1;
+      --grey-500: #64748b;
+      --grey-700: #334155;
+      --red: #dc2626;
+      --red-dark: #b91c1c;
     }
-    
-    body { 
-      background-color: var(--bg-color); 
-      color: var(--text-main);
-      font-family: 'Outfit', sans-serif; 
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--white);
+      color: var(--navy);
       overflow-x: hidden;
-      position: relative;
     }
 
-    /* Ambient Blur Blobs in background */
-    .ambient-blob-1 {
-      position: absolute;
-      top: -10%;
-      left: -10%;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(14, 165, 233, 0.06) 0%, rgba(14, 165, 233, 0) 70%);
-      pointer-events: none;
-      z-index: -1;
-    }
-    .ambient-blob-2 {
-      position: absolute;
-      top: 40%;
-      right: -10%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, rgba(20, 184, 166, 0) 70%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .hero-section {
-      background: radial-gradient(circle at 50% 120%, rgba(14, 165, 233, 0.08) 0%, rgba(248, 250, 252, 1) 100%);
-      border-bottom: 1px solid var(--card-border);
-      padding: 6rem 2rem;
-      text-align: center;
-      position: relative;
-    }
-    .hero-section h1 {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(to right, #0f172a 30%, #0369a1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-transform: uppercase;
-    }
-    
-    .hero-quote-container {
-      max-width: 650px;
-      margin: 1.5rem auto 0 auto;
-      padding: 1rem 2rem;
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    }
-    .hero-quote {
-      font-weight: 400;
-      font-style: italic;
-      color: #334155;
-      letter-spacing: 0.3px;
-      font-size: 1.1rem;
-    }
-
-    .header-actions {
-      position: absolute;
-      top: 50%;
-      right: 20px;
-      transform: translateY(-50%);
+    /* ─── NAVBAR ─────────────────────────────────────── */
+    .navbar-cw {
+      background: var(--navy);
+      padding: 0 2rem;
+      height: 68px;
       display: flex;
-      gap: 15px;
       align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
     }
 
-    @media (max-width: 992px) {
-      .hero-section h1 {
-        font-size: 2.2rem;
-      }
-      .header-actions {
-        position: static;
-        transform: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        margin-top: 1.5rem;
-      }
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
     }
-
-    /* Circle Language Switcher */
-    .lang-toggle-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(2,132,199,0.4);
+    }
+    .logo-text-wrap { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-name { font-size: 1.15rem; font-weight: 800; color: var(--white); letter-spacing: -0.3px; }
+    .logo-sub  { font-size: 0.65rem; font-weight: 400; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+
+    .navbar-actions { display: flex; align-items: center; gap: 12px; }
+
+    .lang-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--navy-light);
+      border: 1px solid #334155;
+      color: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+      transition: all 0.25s ease;
       position: relative;
-      color: #0284c7;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .lang-toggle-circle:hover {
-      transform: scale(1.1) rotate(15deg);
-      background: #f1f5f9;
-      color: #0369a1;
-      border-color: #94a3b8;
-      box-shadow: 0 0 15px rgba(2, 132, 199, 0.15);
+    .lang-btn:hover { background: #0284c720; border-color: var(--blue); color: var(--white); transform: scale(1.08); }
+
+    .btn-nav-outline {
+      padding: 0.45rem 1.3rem;
+      border: 1.5px solid #475569;
+      border-radius: 999px;
+      background: transparent;
+      color: #cbd5e1;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem; font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
     }
-    .lang-badge {
+    .btn-nav-outline:hover { border-color: var(--blue-light); color: var(--white); background: rgba(56,189,248,0.08); }
+
+    .btn-nav-solid {
+      padding: 0.45rem 1.3rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem; font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(2,132,199,0.35);
+    }
+    .btn-nav-solid:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(2,132,199,0.5); color: var(--white); }
+
+    /* ─── HERO ───────────────────────────────────────── */
+    .hero {
+      min-height: 540px;
+      background: linear-gradient(135deg, var(--navy) 0%, #0c1a3a 45%, #0d2d3f 100%);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
       position: absolute;
-      bottom: -3px;
-      right: -3px;
-      background: #0284c7;
-      color: #ffffff;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 2.5px 4.5px;
-      border-radius: 6px;
-      border: 1.5px solid #ffffff;
-      line-height: 1;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      top: -100px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(2,132,199,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: 300px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(13,148,136,0.08) 0%, transparent 70%);
+      pointer-events: none;
     }
 
-    /* Buttons stylings */
-    .btn-light.text-primary {
-      background: #ffffff !important;
-      color: #334155 !important;
-      border: 1px solid #cbd5e1 !important;
-      backdrop-filter: blur(8px);
-      padding: 0.6rem 1.4rem;
+    .hero-container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 3.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .hero-content { flex: 1; z-index: 1; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(2,132,199,0.15);
+      border: 1px solid rgba(56,189,248,0.3);
+      color: var(--blue-light);
+      font-size: 0.8rem;
       font-weight: 600;
-      letter-spacing: 0.3px;
-      border-radius: 30px;
-      transition: all 0.3s ease;
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
     }
-    .btn-light.text-primary:hover {
-      background: #0284c7 !important;
-      color: #ffffff !important;
-      border-color: #0284c7 !important;
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(2, 132, 199, 0.3);
-    }
+    .hero-badge span { width: 6px; height: 6px; background: var(--blue-light); border-radius: 50%; animation: pulse-dot 1.8s infinite; }
+    @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
 
-    /* About Section as premium glassmorphic card */
-    .clinic-info {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      padding: 3.5rem 3rem;
-      margin: 4rem auto;
-      max-width: 900px;
-      border-radius: 24px;
-      border: 1px solid var(--card-border);
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.04);
+    .hero-title {
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 1.2rem;
     }
-    .clinic-info h3 {
-      font-weight: 700;
-      color: #0369a1;
-      margin-bottom: 1.8rem;
-      font-size: 1.8rem;
-      letter-spacing: -0.5px;
-    }
-    .clinic-info p {
-      color: #334155;
-      line-height: 1.8;
+    .hero-title .accent { color: var(--blue-light); }
+
+    .hero-subtitle {
       font-size: 1.05rem;
+      color: #94a3b8;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 480px;
+      font-weight: 400;
     }
 
-    /* Vision and Mission Cards Redesigned */
-    .vision-mission-section {
-      max-width: 900px;
-      margin: 0 auto 4rem auto;
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .btn-hero-primary {
+      padding: 0.8rem 2rem;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: var(--white);
+      border: none; border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      box-shadow: 0 6px 24px rgba(2,132,199,0.4);
+      transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-hero-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(2,132,199,0.55); color: var(--white); }
+
+    .btn-hero-outline {
+      padding: 0.8rem 2rem;
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-hero-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.08); color: var(--white); transform: translateY(-2px); }
+
+    .hero-image-wrap {
+      flex: 0 0 480px;
+      max-width: 480px;
+      z-index: 1;
+    }
+    .hero-image-wrap img {
+      width: 100%;
+      height: 380px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.2), 0 25px 60px rgba(0,0,0,0.5);
+      border: 1px solid rgba(56,189,248,0.15);
+    }
+
+    /* ─── STATS BAR ──────────────────────────────────── */
+    .stats-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--grey-100);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .stats-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: 1.8rem 1rem;
+      text-align: center;
+      border-right: 1px solid var(--grey-100);
+      transition: background 0.25s;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:hover { background: var(--grey-50); }
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(13,148,136,0.1));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.75rem;
+      color: var(--blue);
+    }
+    .stat-number { font-size: 1.8rem; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+    .stat-label  { font-size: 0.82rem; color: var(--grey-500); font-weight: 500; letter-spacing: 0.3px; }
+
+    /* ─── ABOUT ──────────────────────────────────────── */
+    .about-section {
+      background: var(--grey-50);
+      padding: 5rem 2rem;
+    }
+    .about-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+    }
+    .about-content { flex: 1; }
+    .section-tag {
+      font-size: 0.78rem; font-weight: 700;
+      color: var(--blue); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800; color: var(--navy);
+      letter-spacing: -0.5px; margin-bottom: 1.4rem; line-height: 1.2;
+    }
+    .about-content p {
+      color: var(--grey-700); line-height: 1.8;
+      font-size: 1rem; margin-bottom: 1rem;
+    }
+    .about-image-wrap {
+      flex: 0 0 480px; max-width: 480px;
+    }
+    .about-image-wrap img {
+      width: 100%; height: 340px; object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+      border: 1px solid var(--grey-300);
+    }
+
+    /* ─── VISION / MISSION ───────────────────────────── */
+    .vm-section {
+      background: var(--white);
+      padding: 5rem 2rem;
+    }
+    .vm-inner {
+      max-width: 1280px; margin: 0 auto;
+    }
+    .vm-header { text-align: center; margin-bottom: 3rem; }
+    .vm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
     }
     .vm-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
+      background: var(--white);
+      border: 1px solid var(--grey-100);
+      border-radius: 20px;
       padding: 2.5rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.03);
-      height: 100%;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .vm-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      border-radius: 20px 20px 0 0;
     }
     .vm-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(14, 165, 233, 0.3);
-      box-shadow: 0 16px 32px rgba(14, 165, 233, 0.08);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(2,132,199,0.1);
+      border-color: rgba(2,132,199,0.2);
     }
-    .vm-icon-wrapper {
-      width: 64px;
-      height: 64px;
+    .vm-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(2,132,199,0.1), rgba(13,148,136,0.1));
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue); margin-bottom: 1.5rem;
+    }
+    .vm-card h3 { font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem; }
+    .vm-card p  { color: var(--grey-500); line-height: 1.75; font-size: 0.97rem; }
+
+    /* ─── NOTICE ─────────────────────────────────────── */
+    .notice-section {
+      background: var(--grey-50);
+      padding: 3rem 2rem;
+    }
+    .notice-inner {
+      max-width: 1280px; margin: 0 auto;
+      background: var(--white);
       border-radius: 16px;
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(20, 184, 166, 0.08) 100%);
+      border: 1px solid #fef3c7;
+      border-left: 5px solid #f59e0b;
+      padding: 1.75rem 2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.06);
+    }
+    .notice-icon { color: #f59e0b; flex-shrink: 0; margin-top: 2px; }
+    .notice-body { flex: 1; }
+    .notice-body strong { color: #92400e; font-size: 1rem; }
+    .notice-body p { color: #78350f; font-size: 0.92rem; line-height: 1.7; margin: 0.3rem 0 0; }
+    .notice-body a { color: var(--blue-dark); font-weight: 600; }
+
+    /* ─── EMERGENCY ──────────────────────────────────── */
+    .emergency-section {
+      background: linear-gradient(135deg, #991b1b 0%, var(--red-dark) 50%, var(--red) 100%);
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .emergency-section::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .emergency-inner {
+      max-width: 1280px; margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      color: #0284c7;
-      border: 1px solid rgba(14, 165, 233, 0.15);
-      margin-left: auto;
-      margin-right: auto;
-      transition: all 0.3s ease;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+      z-index: 1; position: relative;
     }
-    .vm-card:hover .vm-icon-wrapper {
-      transform: scale(1.1) rotate(5deg);
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(20, 184, 166, 0.15) 100%);
-      color: #0369a1;
-      border-color: rgba(14, 165, 233, 0.3);
-    }
-    .vm-card h4 {
-      font-weight: 700;
-      color: #0f172a;
-      margin-bottom: 1rem;
-      font-size: 1.4rem;
-      text-align: center;
-    }
-    .vm-card p {
-      color: #475569;
-      font-size: 1rem;
-      line-height: 1.7;
-      text-align: center;
-    }
-
-    /* Notice Box */
-    .notice-box {
-      border-left: 5px solid #d97706;
-      background: #fffbeb;
-      border-radius: 16px;
-      border-top: 1px solid #fef3c7;
-      border-right: 1px solid #fef3c7;
-      border-bottom: 1px solid #fef3c7;
-      box-shadow: 0 8px 24px rgba(217, 119, 6, 0.03);
-      color: #451a03;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .notice-box .text-danger {
-      color: #b45309 !important;
-      font-weight: 700;
-    }
-    .notice-box .text-primary {
-      color: #0284c7 !important;
-    }
-
-    /* Emergency Section */
-    .emergency-card {
-      border: 1px solid rgba(220, 38, 38, 0.15) !important;
-      background: radial-gradient(circle at 50% 50%, rgba(254, 226, 226, 0.3) 0%, #ffffff 100%) !important;
-      border-radius: 24px !important;
-      box-shadow: 0 15px 35px rgba(220, 38, 38, 0.03) !important;
-      max-width: 900px;
-      margin: 4rem auto 0 auto;
-    }
-    .emergency-card h4 {
-      font-weight: 700;
-      color: #dc2626;
-    }
-    .btn-danger {
-      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-      border: none;
-      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
-      padding: 0.75rem 1.8rem;
-      border-radius: 30px;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    .btn-danger:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35);
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      color: #ffffff;
-    }
-    .btn-outline-danger {
-      border: 1.5px solid rgba(220, 38, 38, 0.4);
-      color: #dc2626;
-      padding: 0.6rem 1.5rem;
-      border-radius: 30px;
-      background: transparent;
-      transition: all 0.3s ease;
-    }
-    .btn-outline-danger:hover {
-      background: rgba(220, 38, 38, 0.05);
-      border-color: #dc2626;
-      color: #b91c1c;
-      transform: translateY(-2px);
-    }
-
-    footer {
-      background-color: #ffffff;
-      color: #64748b;
-      padding: 3rem 0;
-      text-align: center;
-      margin-top: 5rem;
-      width: 100%;
-      font-size: 0.95rem;
-      border-top: 1px solid var(--card-border);
-    }
-    footer p {
+    .emergency-text h2 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 800; color: var(--white); line-height: 1.2;
       margin-bottom: 0.5rem;
+    }
+    .emergency-text p { color: rgba(255,255,255,0.8); font-size: 1rem; }
+    .emergency-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-emerg-solid {
+      padding: 0.85rem 2rem;
+      background: var(--white); color: var(--red);
+      border: none; border-radius: 999px;
+      font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-emerg-solid:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); color: var(--red); }
+    .btn-emerg-outline {
+      padding: 0.85rem 2rem;
+      background: transparent; color: var(--white);
+      border: 2px solid rgba(255,255,255,0.5); border-radius: 999px;
+      font-family: 'Outfit', sans-serif; font-size: 1rem; font-weight: 600;
+      text-decoration: none; transition: all 0.3s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-emerg-outline:hover { border-color: var(--white); background: rgba(255,255,255,0.1); color: var(--white); transform: translateY(-2px); }
+
+    /* ─── FOOTER ─────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      padding: 3.5rem 2rem 2rem;
+      color: #94a3b8;
+    }
+    .footer-inner {
+      max-width: 1280px; margin: 0 auto;
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 3rem; padding-bottom: 2.5rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .footer-brand .logo-name { font-size: 1.2rem; }
+    .footer-brand p { margin-top: 1rem; font-size: 0.9rem; line-height: 1.7; color: #64748b; }
+    .footer-col h4 { color: var(--white); font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: 0.5px; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 0.6rem; font-size: 0.88rem; color: #64748b; }
+    .footer-col ul li a { color: #64748b; text-decoration: none; transition: color 0.2s; }
+    .footer-col ul li a:hover { color: var(--blue-light); }
+    .footer-bottom {
+      max-width: 1280px; margin: 0 auto;
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.83rem; color: #475569; flex-wrap: wrap; gap: 8px;
+    }
+
+    /* ─── ANIMATIONS ─────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.7s ease both; }
+    .fade-up-d1 { animation-delay: 0.1s; }
+    .fade-up-d2 { animation-delay: 0.2s; }
+    .fade-up-d3 { animation-delay: 0.35s; }
+    .fade-up-d4 { animation-delay: 0.5s; }
+
+    /* ─── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 991px) {
+      .hero-container { flex-direction: column; text-align: center; }
+      .hero-image-wrap { flex: none; max-width: 100%; }
+      .hero-btns { justify-content: center; }
+      .hero-subtitle { margin: 0 auto 2rem; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .about-inner { flex-direction: column; }
+      .about-image-wrap { flex: none; max-width: 100%; }
+      .vm-grid { grid-template-columns: 1fr; }
+      .emergency-inner { flex-direction: column; text-align: center; }
+      .emergency-btns { justify-content: center; }
+      .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 575px) {
+      .navbar-cw { padding: 0 1rem; }
+      .btn-nav-outline { display: none; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .hero-image-wrap img { height: 250px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient blur blobs for unique premium background aesthetic -->
-  <div class="ambient-blob-1"></div>
-  <div class="ambient-blob-2"></div>
-
-<!-- Intro Page -->
-<div id="introPage">
-  <div class="hero-section">
-    <h1 data-translate="title">CureWell Hospital</h1>
-    <div class="hero-quote-container">
-      <p class="hero-quote mb-0 fs-5" data-translate="hero_quote">"Wherever the art of Medicine is loved, there is also a love of Humanity." — Hippocrates</p>
-    </div>
-    <div class="header-actions">
-      <button id="langToggleBtn" onclick="toggleLanguage()" class="lang-toggle-circle" title="Switch Language / மொழியை மாற்றவும்">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-translate" viewBox="0 0 16 16">
-          <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286zm1.634-.736L5.5 3.956h-.049l-.679 2.022z"/>
-          <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zm7.138 9.995q.289.451.63.846c-.748.575-1.673 1.001-2.768 1.292.178.36.44.721.754 1.112 1.362-.367 2.525-.909 3.51-1.667.975.758 2.138 1.3 3.5 1.667.314-.39.576-.751.754-1.112-1.095-.291-2.02-.717-2.768-1.292.342-.396.682-.84 1.01-1.387h-1.391a7 7 0 0 1-.68.995 7 7 0 0 1-.68-.995zm.003-1.162h3.585A1.5 1.5 0 0 0 11 6.5H8v3a1.5 1.5 0 0 0 1.138 1.333"/>
+  <!-- ═══ NAVBAR ═══════════════════════════════════════ -->
+  <nav class="navbar-cw">
+    <a href="/" class="navbar-logo">
+      <div class="logo-icon">
+        <!-- Inline SVG Medical Cross Logo -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="2" width="6" height="20" rx="2" fill="white"/>
+          <rect x="2" y="9" width="20" height="6" rx="2" fill="white"/>
         </svg>
-        <span class="lang-badge" id="langBadge">TA</span>
+      </div>
+      <div class="logo-text-wrap">
+        <span class="logo-name" id="nav-title" data-translate="title">CureWell</span>
+        <span class="logo-sub">Hospital</span>
+      </div>
+    </a>
+    <div class="navbar-actions">
+      <button class="lang-btn" onclick="toggleLanguage()" id="langToggleBtn" title="Switch Language / மொழியை மாற்றவும்">
+        <span id="langBadge">TA</span>
       </button>
-      <a href="/patient_login/?action=signup" data-translate="register" class="btn btn-light text-primary">Register</a>
-      <a href="/patient_login/" target="_blank" data-translate="login" class="btn btn-light text-primary">Login</a>
+      <a href="/patient_login/?action=signup" class="btn-nav-outline" data-translate="register">Register</a>
+      <a href="/patient_login/" class="btn-nav-solid" data-translate="login">Login</a>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ══════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge fade-up fade-up-d1">
+          <span></span>
+          <span data-translate="hero_badge">Trusted Healthcare · Thanjavur, Tamil Nadu</span>
+        </div>
+        <h1 class="hero-title fade-up fade-up-d2" data-translate="hero_title">
+          Compassionate Care,<br><span class="accent">Trusted Health.</span>
+        </h1>
+        <p class="hero-subtitle fade-up fade-up-d3" data-translate="hero_subtitle">
+          Serving Thanjavur since 2010 — quality medical care delivered with compassion, modern technology, and a patient-first approach.
+        </p>
+        <div class="hero-btns fade-up fade-up-d4">
+          <a href="/patient_login/" class="btn-hero-primary" data-translate="book_btn">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Book Appointment
+          </a>
+          <a href="#about" class="btn-hero-outline" data-translate="learn_btn">
+            Learn More
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="hero-image-wrap fade-up fade-up-d3">
+        <img src="{% static 'hosp/hero_lobby.png' %}" alt="CureWell Hospital Lobby — modern reception area with patients and staff" loading="eager"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STATS BAR ══════════════════════════════════════ -->
+  <div class="stats-bar">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        </div>
+        <div class="stat-number" data-translate="stat1_num">9+</div>
+        <div class="stat-label" data-translate="stat1_lbl">Specialties</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="stat-number" data-translate="stat2_num">5,000+</div>
+        <div class="stat-label" data-translate="stat2_lbl">Patients Served</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="stat-number" data-translate="stat3_num">Est. 2010</div>
+        <div class="stat-label" data-translate="stat3_lbl">Years of Trust</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375A1.125 1.125 0 0 1 2.25 17.625V7.875A1.125 1.125 0 0 1 3.375 6.75H12a1.125 1.125 0 0 1 1.125 1.125v9.75A1.125 1.125 0 0 1 12 18.75h-.75"/></svg>
+        </div>
+        <div class="stat-number" data-translate="stat4_num">24/7</div>
+        <div class="stat-label" data-translate="stat4_lbl">Emergency Ready</div>
+      </div>
     </div>
   </div>
 
-  <!-- About the Clinic -->
-  <div class="clinic-info">
-    <div class="row align-items-center text-start">
-      <div class="col-lg-7">
-        <h3 data-translate="about_heading" class="text-lg-start text-center">About CureWell Hospital</h3>
+  <!-- ═══ ABOUT ══════════════════════════════════════════ -->
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <div class="about-content">
+        <p class="section-tag" data-translate="about_tag">Who We Are</p>
+        <h2 class="section-title" data-translate="about_heading">About CureWell Hospital</h2>
         <p data-translate="about_p1">Established in 2010 in the culturally rich city of Thanjavur, Tamil Nadu, CureWell Hospital is dedicated to delivering quality healthcare with compassion and care.</p>
-        <p data-translate="about_p2">Our hospital offers a wide range of services including General Checkups, Blood Tests, Diabetes Testing, and PT Scans ,etc. Equipped with modern technology and supported by experienced professionals, we strive to make healthcare accessible and affordable to all.</p>
+        <p data-translate="about_p2">Our hospital offers a wide range of services including General Checkups, Blood Tests, Diabetes Testing, PT Scans, and more. Equipped with modern technology and experienced professionals, we make healthcare accessible and affordable to all.</p>
         <p data-translate="about_p3">CureWell Hospital stands as a symbol of trust, providing patient-centered care in a safe and welcoming environment.</p>
       </div>
-      <div class="col-lg-5 text-center mt-4 mt-lg-0">
-        <img src="{% static 'hosp/clinic_lobby.png' %}" alt="Clinic Reception" class="img-fluid rounded-4 shadow-sm" style="border: 1px solid rgba(255,255,255,0.08); max-height: 280px; width: 100%; object-fit: cover;">
+      <div class="about-image-wrap">
+        <img src="{% static 'hosp/hospital_exterior.png' %}" alt="CureWell Hospital building exterior — Thanjavur, Tamil Nadu" loading="lazy"/>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Vision & Mission Section -->
-  <div class="container vision-mission-section">
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="vm-card">
-          <div class="vm-icon-wrapper">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </div>
-          <h4 data-translate="vision_title">Our Vision</h4>
-          <p data-translate="vision_text">To be a global leader in patient-centered healthcare, pioneering medical innovation and compassionate healing.</p>
-        </div>
+  <!-- ═══ VISION / MISSION ═══════════════════════════════ -->
+  <section class="vm-section">
+    <div class="vm-inner">
+      <div class="vm-header">
+        <p class="section-tag" data-translate="vm_tag">Our Core Values</p>
+        <h2 class="section-title" data-translate="vm_title">What Drives Us</h2>
       </div>
-      <div class="col-md-6">
+      <div class="vm-grid">
         <div class="vm-card">
-          <div class="vm-icon-wrapper">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <circle cx="12" cy="12" r="6"></circle>
-              <circle cx="12" cy="12" r="2"></circle>
-            </svg>
+          <div class="vm-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
-          <h4 data-translate="mission_title">Our Mission</h4>
-          <p data-translate="mission_text">To deliver high-quality, accessible, and affordable healthcare services with dedication, integrity, and clinical excellence.</p>
+          <h3 data-translate="vision_title">Our Vision</h3>
+          <p data-translate="vision_text">To be a leading patient-centered hospital in Tamil Nadu, pioneering medical innovation and delivering compassionate healing to every individual we serve.</p>
+        </div>
+        <div class="vm-card">
+          <div class="vm-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <h3 data-translate="mission_title">Our Mission</h3>
+          <p data-translate="mission_text">To deliver high-quality, accessible, and affordable healthcare services with dedication, integrity, and clinical excellence — putting patients first, always.</p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="container mb-4">
-    <div class="notice-box p-4 fw-bold fs-5">
-      <span class="text-danger" data-translate="notice_lbl">Notice:</span><br>
-      <span data-translate="notice_txt1">If any server issue occurs, contact <b>curewellhospital@gmail.com</b> or phone: <b>04373-233666</b> / <b>+91 8248917874</b>.</span><br>
-      <span data-translate="notice_txt2">When emailing, please specify what service you want and include your personal information.</span><br>
-      <span class="text-primary" data-translate="notice_txt3">You can also contact us directly by phone for urgent assistance.</span>
+  <!-- ═══ NOTICE ═════════════════════════════════════════ -->
+  <section class="notice-section">
+    <div class="notice-inner">
+      <div class="notice-icon">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="notice-body">
+        <strong data-translate="notice_lbl">Notice</strong>
+        <p>
+          <span data-translate="notice_txt1">If any server issue occurs, contact <a href="mailto:curewellhospital@gmail.com">curewellhospital@gmail.com</a> or call <strong>04373-233666</strong> / <strong>+91 8248917874</strong>.</span><br>
+          <span data-translate="notice_txt2">When emailing, please specify the service required and include your personal information.</span>
+          <span data-translate="notice_txt3"> You can also contact us directly by phone for urgent assistance.</span>
+        </p>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- Emergency / Ambulance Section -->
-<div class="container mt-5">
-  <div class="card emergency-card">
-    <div class="card-body text-center p-4">
-      <!-- Inline Ambulance SVG Icon -->
-      <svg class="text-danger mb-3" width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H12a1.125 1.125 0 0 1 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.75m3.75-1.5a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.5m-7.5-6h3.75m-3.75 3h3.75M16.5 9h3.375a1.125 1.125 0 0 1 1.125 1.125v5.25a1.125 1.125 0 0 1-1.125 1.125H16.5V9Z"></path>
-      </svg>
-      <h4 class="text-danger mb-3" data-translate="emerg_heading">🚑 Emergency / Ambulance</h4>
-      <p class="fs-5" data-translate="emerg_p1">For medical emergencies, please call the national ambulance helpline immediately:</p>
-      <a href="tel:108" class="btn btn-danger btn-lg mb-3" data-translate="emerg_btn1">📞 Call 108 — Free Ambulance</a>
-      <p class="text-muted mb-1" data-translate="emerg_p2">Or reach us directly at:</p>
-      <a href="tel:+918248917874" class="btn btn-outline-danger" data-translate="emerg_btn2">📞 +91 8248917874 — CureWell Hospital</a>
-      <p class="mt-3 text-muted small" data-translate="emerg_p3">⚠️ Do not wait — call immediately in any life-threatening situation.</p>
+  <!-- ═══ EMERGENCY ══════════════════════════════════════ -->
+  <section class="emergency-section">
+    <div class="emergency-inner">
+      <div class="emergency-text">
+        <h2 data-translate="emerg_heading">🚑 Medical Emergency?</h2>
+        <p data-translate="emerg_sub">Do not wait — call immediately in any life-threatening situation.</p>
+      </div>
+      <div class="emergency-btns">
+        <a href="tel:108" class="btn-emerg-solid" data-translate="emerg_btn1">📞 Call 108 — Free Ambulance</a>
+        <a href="tel:+918248917874" class="btn-emerg-outline" data-translate="emerg_btn2">📞 +91 8248917874</a>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
 
-  <!-- Footer -->
+  <!-- ═══ FOOTER ═════════════════════════════════════════ -->
   <footer>
-    <p data-translate="footer_contact">Contact: 04373-233666 / +91 8248917874 | Address: Thanjavur, Tamil Nadu</p>
-    <p data-translate="footer_copyright">&copy; 2025 CureWell Hospital. All rights reserved.</p>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="navbar-logo" style="margin-bottom:0.5rem;">
+          <div class="logo-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="20" rx="2" fill="white"/><rect x="2" y="9" width="20" height="6" rx="2" fill="white"/></svg>
+          </div>
+          <div class="logo-text-wrap">
+            <span class="logo-name">CureWell</span>
+            <span class="logo-sub">Hospital</span>
+          </div>
+        </div>
+        <p data-translate="footer_desc">Delivering compassionate, quality healthcare to the people of Thanjavur and Tamil Nadu since 2010.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-translate="footer_contact_h">Contact</h4>
+        <ul>
+          <li data-translate="footer_addr">📍 Thanjavur, Tamil Nadu</li>
+          <li><a href="tel:+914373233666">📞 04373-233666</a></li>
+          <li><a href="tel:+918248917874">📞 +91 8248917874</a></li>
+          <li><a href="mailto:curewellhospital@gmail.com">✉️ curewellhospital@gmail.com</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-translate="footer_services_h">Services</h4>
+        <ul>
+          <li data-translate="fs1">General Medicine</li>
+          <li data-translate="fs2">Cardiology</li>
+          <li data-translate="fs3">Dentistry</li>
+          <li data-translate="fs4">Ophthalmology</li>
+          <li data-translate="fs5">Pediatrics</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-translate="footer_copyright">© 2025 CureWell Hospital. All rights reserved.</span>
+      <span data-translate="footer_tagline">Compassionate Care · Trusted Health</span>
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
   const translations = {
     en: {
-      title: "CureWell Hospital",
+      title: "CureWell",
       register: "Register",
       login: "Login",
-      hero_quote: `"Wherever the art of Medicine is loved, there is also a love of Humanity." — Hippocrates`,
+      hero_badge: "Trusted Healthcare · Thanjavur, Tamil Nadu",
+      hero_title: `Compassionate Care,<br><span class="accent">Trusted Health.</span>`,
+      hero_subtitle: "Serving Thanjavur since 2010 — quality medical care delivered with compassion, modern technology, and a patient-first approach.",
+      book_btn: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Book Appointment`,
+      learn_btn: `Learn More <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`,
+      stat1_num: "9+", stat1_lbl: "Specialties",
+      stat2_num: "5,000+", stat2_lbl: "Patients Served",
+      stat3_num: "Est. 2010", stat3_lbl: "Years of Trust",
+      stat4_num: "24/7", stat4_lbl: "Emergency Ready",
+      about_tag: "Who We Are",
       about_heading: "About CureWell Hospital",
       about_p1: "Established in 2010 in the culturally rich city of Thanjavur, Tamil Nadu, CureWell Hospital is dedicated to delivering quality healthcare with compassion and care.",
-      about_p2: "Our hospital offers a wide range of services including General Checkups, Blood Tests, Diabetes Testing, and PT Scans ,etc. Equipped with modern technology and supported by experienced professionals, we strive to make healthcare accessible and affordable to all.",
+      about_p2: "Our hospital offers a wide range of services including General Checkups, Blood Tests, Diabetes Testing, PT Scans, and more. Equipped with modern technology and experienced professionals, we make healthcare accessible and affordable to all.",
       about_p3: "CureWell Hospital stands as a symbol of trust, providing patient-centered care in a safe and welcoming environment.",
+      vm_tag: "Our Core Values", vm_title: "What Drives Us",
       vision_title: "Our Vision",
-      vision_text: "To be a global leader in patient-centered healthcare, pioneering medical innovation and compassionate healing.",
+      vision_text: "To be a leading patient-centered hospital in Tamil Nadu, pioneering medical innovation and delivering compassionate healing to every individual we serve.",
       mission_title: "Our Mission",
-      mission_text: "To deliver high-quality, accessible, and affordable healthcare services with dedication, integrity, and clinical excellence.",
-      notice_lbl: "Notice:",
-      notice_txt1: "If any server issue occurs, contact <b>curewellhospital@gmail.com</b> or phone: <b>04373-233666</b> / <b>+91 8248917874</b>.",
-      notice_txt2: "When emailing, please specify what service you want and include your personal information.",
-      notice_txt3: "You can also contact us directly by phone for urgent assistance.",
-      emerg_heading: "🚑 Emergency / Ambulance",
-      emerg_p1: "For medical emergencies, please call the national ambulance helpline immediately:",
+      mission_text: "To deliver high-quality, accessible, and affordable healthcare services with dedication, integrity, and clinical excellence — putting patients first, always.",
+      notice_lbl: "Notice",
+      notice_txt1: `If any server issue occurs, contact <a href="mailto:curewellhospital@gmail.com">curewellhospital@gmail.com</a> or call <strong>04373-233666</strong> / <strong>+91 8248917874</strong>.`,
+      notice_txt2: "When emailing, please specify the service required and include your personal information.",
+      notice_txt3: " You can also contact us directly by phone for urgent assistance.",
+      emerg_heading: "🚑 Medical Emergency?",
+      emerg_sub: "Do not wait — call immediately in any life-threatening situation.",
       emerg_btn1: "📞 Call 108 — Free Ambulance",
-      emerg_p2: "Or reach us directly at:",
-      emerg_btn2: "📞 +91 8248917874 — CureWell Hospital",
-      emerg_p3: "⚠️ Do not wait — call immediately in any life-threatening situation.",
-      footer_contact: "Contact: 04373-233666 / +91 8248917874 | Address: Thanjavur, Tamil Nadu",
-      footer_copyright: "&copy; 2025 CureWell Hospital. All rights reserved."
+      emerg_btn2: "📞 +91 8248917874",
+      footer_desc: "Delivering compassionate, quality healthcare to the people of Thanjavur and Tamil Nadu since 2010.",
+      footer_contact_h: "Contact", footer_services_h: "Services",
+      footer_addr: "📍 Thanjavur, Tamil Nadu",
+      fs1:"General Medicine", fs2:"Cardiology", fs3:"Dentistry", fs4:"Ophthalmology", fs5:"Pediatrics",
+      footer_copyright: "© 2025 CureWell Hospital. All rights reserved.",
+      footer_tagline: "Compassionate Care · Trusted Health"
     },
     ta: {
-      title: "கியூர்வெல் மருத்துவமனை",
+      title: "கியூர்வெல்",
       register: "பதிவு செய்யவும்",
       login: "உள்நுழைவு",
-      hero_quote: `"மருத்துவக் கலை எங்கு நேசிக்கப்படுகிறதோ, அங்கு மனிதநேயமும் நேசிக்கப்படுகிறது." — ஹிப்போகிரட்டீஸ்`,
+      hero_badge: "நம்பகமான சுகாதாரம் · தஞ்சாவூர், தமிழ்நாடு",
+      hero_title: `இரக்கமுள்ள கவனிப்பு,<br><span class="accent">நம்பகமான ஆரோக்கியம்.</span>`,
+      hero_subtitle: "2010 முதல் தஞ்சாவூரில் சேவை — இரக்கம், நவீன தொழில்நுட்பம் மற்றும் நோயாளி-முதல் அணுகுமுறையுடன் தரமான மருத்துவ சேவை.",
+      book_btn: `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> அப்பாயின்ட்மெண்ட் பதிவு`,
+      learn_btn: `மேலும் அறிய <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`,
+      stat1_num: "9+", stat1_lbl: "சிறப்பு சேவைகள்",
+      stat2_num: "5,000+", stat2_lbl: "நோயாளிகளுக்கு சேவை",
+      stat3_num: "2010 முதல்", stat3_lbl: "நம்பகத்தன்மையின் ஆண்டுகள்",
+      stat4_num: "24/7", stat4_lbl: "அவசர தயார்நிலை",
+      about_tag: "நாங்கள் யார்",
       about_heading: "கியூர்வெல் மருத்துவமனை பற்றி",
-      about_p1: "2010 ஆம் ஆண்டு தமிழ்நாட்டின் கலாச்சார ரீதியாக வளமான தஞ்சாவூர் நகரில் நிறுவப்பட்ட கியூர்வெல் மருத்துவமனை, இரக்கத்துடனும் கவனத்துடனும் தரமான சுகாதார சேவைகளை வழங்க அர்ப்பணிக்கப்பட்டுள்ளது.",
-      about_p2: "எங்கள் மருத்துவமனை பொதுவான பரிசோதனைகள், இரத்தப் பரிசோதனைகள், நீரிழிவு பரிசோதனை மற்றும் பிடி ஸ்கான்கள் போன்ற பரந்த அளவிலான சேவைகளை வழங்குகிறது. நவீன தொழில்நுட்பத்துடன் கூடிய அனுபவம் வாய்ந்த நிபுணர்களின் ஆதரவுடன், நாங்கள் சுகாதார சேவைகளை அனைவருக்கும் எளிதாகவும் மலிவாகவும் கிடைக்கச் செய்ய பாடுபடுகிறோம்.",
-      about_p3: "கியூர்வெல் மருத்துவமனை நம்பகத்தன்மையின் அடையாளமாக நின்று, பாதுகாப்பான மற்றும் வரவேற்கத்தக்க சூழலில் நோயாளி சார்ந்த கவனிப்பை வழங்குகிறது.",
+      about_p1: "2010 ஆம் ஆண்டு தமிழ்நாட்டின் தஞ்சாவூர் நகரில் நிறுவப்பட்ட கியூர்வெல் மருத்துவமனை, இரக்கத்துடன் தரமான சுகாதார சேவைகளை வழங்க அர்ப்பணிக்கப்பட்டுள்ளது.",
+      about_p2: "எங்கள் மருத்துவமனை பொதுவான பரிசோதனைகள், இரத்தப் பரிசோதனைகள், நீரிழிவு பரிசோதனை மற்றும் பிடி ஸ்கான்கள் போன்ற சேவைகளை வழங்குகிறது.",
+      about_p3: "கியூர்வெல் மருத்துவமனை நம்பகத்தன்மையின் அடையாளமாக நின்று, பாதுகாப்பான சூழலில் நோயாளி சார்ந்த கவனிப்பை வழங்குகிறது.",
+      vm_tag: "எங்கள் மதிப்புகள்", vm_title: "எங்களை இயக்குவது என்ன",
       vision_title: "எங்கள் பார்வை",
-      vision_text: "நோயாளி சார்ந்த சுகாதார சேவையில் உலகளாவிய முன்னணியாளராக விளங்குதல், மருத்துவ கண்டுபிடிப்புகள் மற்றும் இரக்கமுள்ள குணப்படுத்துதலில் முன்னோடியாக இருத்தல்.",
+      vision_text: "தமிழ்நாட்டில் முன்னணி நோயாளி சார்ந்த மருத்துவமனையாக விளங்குதல், மருத்துவ கண்டுபிடிப்புகளில் முன்னோடியாக இருத்தல்.",
       mission_title: "எங்கள் பணி",
-      mission_text: "அர்ப்பணிப்பு, நேர்மை மற்றும் மருத்துவச் சிறப்போடு கூடிய உயர்தர, எளிதில் அணுகக்கூடிய மற்றும் மலிவு விலையிலான சுகாதாரச் சேவைகளை வழங்குதல்.",
-      notice_lbl: "அறிவிப்பு:",
-      notice_txt1: "ஏதேனும் சர்வர் பிரச்சனை ஏற்பட்டால், <b>curewellhospital@gmail.com</b> ஐ தொடர்பு கொள்ளவும் அல்லது தொலைபேசி: <b>04373-233666</b> / <b>+91 8248917874</b> ஐ தொடர்பு கொள்ளவும்.",
-      notice_txt2: "மின்னஞ்சல் அனுப்பும் போது, உங்களுக்கு என்ன சேவை வேண்டும் என்பதை குறிப்பிட்டு உங்கள் தனிப்பட்ட தகவல்களை சேர்க்கவும்.",
-      notice_txt3: "அவசர உதவிக்கு நீங்கள் எங்களை நேரடியாக தொலைபேசியிலும் தொடர்பு கொள்ளலாம்.",
-      emerg_heading: "🚑 அவசரநிலை / ஆம்புலன்ஸ்",
-      emerg_p1: "மருத்துவ அவசரநிலைகளுக்கு, உடனடியாக தேசிய ஆம்புலன்ஸ் உதவி எண்ணை அழைக்கவும்:",
+      mission_text: "அர்ப்பணிப்பு, நேர்மை மற்றும் மருத்துவச் சிறப்போடு கூடிய உயர்தர, மலிவு விலையிலான சுகாதாரச் சேவைகளை வழங்குதல்.",
+      notice_lbl: "அறிவிப்பு",
+      notice_txt1: `ஏதேனும் சர்வர் பிரச்சனை ஏற்பட்டால், <a href="mailto:curewellhospital@gmail.com">curewellhospital@gmail.com</a> ஐ தொடர்பு கொள்ளவும் அல்லது <strong>04373-233666</strong> / <strong>+91 8248917874</strong> ஐ அழைக்கவும்.`,
+      notice_txt2: "மின்னஞ்சல் அனுப்பும் போது, சேவை மற்றும் தனிப்பட்ட தகவல்களை குறிப்பிடவும்.",
+      notice_txt3: " அவசர உதவிக்கு நேரடியாக தொலைபேசியிலும் தொடர்பு கொள்ளலாம்.",
+      emerg_heading: "🚑 மருத்துவ அவசரநிலை?",
+      emerg_sub: "காத்திருக்க வேண்டாம் — உயிருக்கு ஆபத்தான சூழ்நிலையில் உடனடியாக அழைக்கவும்.",
       emerg_btn1: "📞 108 ஐ அழைக்கவும் — இலவச ஆம்புலன்ஸ்",
-      emerg_p2: "அல்லது எங்களை நேரடியாக தொடர்பு கொள்ளவும்:",
-      emerg_btn2: "📞 +91 8248917874 — கியூர்வெல் மருத்துவமனை",
-      emerg_p3: "⚠️ காத்திருக்க வேண்டாம் — உயிருக்கு ஆபத்தான எந்த சூழ்நிலையிலும் உடனடியாக அழைக்கவும்.",
-      footer_contact: "தொடர்புக்கு: 04373-233666 / +91 8248917874 | முகவரி: தஞ்சாவூர், தமிழ்நாடு",
-      footer_copyright: "&copy; 2025 கியூர்வெல் மருத்துவமனை. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை."
+      emerg_btn2: "📞 +91 8248917874",
+      footer_desc: "2010 முதல் தஞ்சாவூர் மற்றும் தமிழ்நாடு மக்களுக்கு இரக்கமுள்ள, தரமான சுகாதார சேவைகளை வழங்குகிறோம்.",
+      footer_contact_h: "தொடர்பு", footer_services_h: "சேவைகள்",
+      footer_addr: "📍 தஞ்சாவூர், தமிழ்நாடு",
+      fs1:"பொது மருத்துவம்", fs2:"இருதய சிகிச்சை", fs3:"பல் மருத்துவம்", fs4:"கண் மருத்துவம்", fs5:"குழந்தை மருத்துவம்",
+      footer_copyright: "© 2025 கியூர்வெல் மருத்துவமனை. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
+      footer_tagline: "இரக்கமுள்ள கவனிப்பு · நம்பகமான ஆரோக்கியம்"
     }
   };
 
   let currentLang = 'en';
+
   function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'ta' : 'en';
-    
-    const langBadge = document.getElementById('langBadge');
-    if (langBadge) {
-      langBadge.textContent = currentLang === 'en' ? 'TA' : 'EN';
-    }
-    
+    const badge = document.getElementById('langBadge');
+    if (badge) badge.textContent = currentLang === 'en' ? 'TA' : 'EN';
     document.querySelectorAll('[data-translate]').forEach(el => {
       const key = el.getAttribute('data-translate');
-      if (translations[currentLang][key]) {
+      if (translations[currentLang][key] !== undefined) {
         el.innerHTML = translations[currentLang][key];
       }
     });
   }
+
+  // Intersection Observer for scroll-triggered fade-in on stats and sections
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.stat-item, .vm-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
   </script>
 </body>
 </html>
