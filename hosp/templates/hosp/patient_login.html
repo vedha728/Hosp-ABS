@@ -3,10 +3,24 @@
 <html lang="en">
 <head>
   <title>Patient Login - CureWell Hospital</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     :root {
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --blue: #0284c7;
+      --blue-dark: #0369a1;
+      --blue-light: #38bdf8;
+      --teal: #0d9488;
+      --white: #ffffff;
+      --grey-50: #f8fafc;
+      --grey-100: #f1f5f9;
+      --grey-300: #cbd5e1;
+      --grey-500: #64748b;
+      --grey-700: #334155;
+      
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --card-border: #e2e8f0;
@@ -22,6 +36,69 @@
       overflow-x: hidden;
       position: relative;
     }
+    /* ─── NAVBAR ─────────────────────────────────────── */
+    .navbar-cw {
+      background: var(--navy);
+      padding: 0 2.5rem;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(2,132,199,0.4);
+    }
+    .logo-text-wrap { display: flex; flex-direction: column; line-height: 1.15; }
+    .logo-name { font-size: 1.55rem; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+    .logo-sub  { font-size: 0.8rem; font-weight: 400; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+
+    .navbar-actions { display: flex; align-items: center; gap: 16px; }
+
+    .btn-nav-outline {
+      padding: 0.6rem 1.6rem;
+      border: 1.5px solid #475569;
+      border-radius: 999px;
+      background: transparent;
+      color: #cbd5e1;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.02rem; font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+    .btn-nav-outline:hover { border-color: var(--blue-light); color: var(--white); background: rgba(56,189,248,0.08); }
+
+    .btn-nav-solid {
+      padding: 0.6rem 1.6rem;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: var(--white);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.02rem; font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(2,132,199,0.35);
+    }
+    .btn-nav-solid:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(2,132,199,0.5); color: var(--white); }
+
     /* Ambient Blur Blobs in background */
     .ambient-blob-1 {
       position: absolute;
@@ -340,27 +417,35 @@
     }
     
     /* Buttons */
-    .btn-primary {
-      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    .btn-primary, .btn-success {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%) !important;
       border: none !important;
       box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;
-      font-weight: 600;
+      font-weight: 700;
+      color: #ffffff !important;
+      border-radius: 8px;
+      padding: 0.65rem 1.5rem;
+      transition: all 0.25s ease;
     }
-    .btn-primary:hover {
-      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important;
+    .btn-primary:hover, .btn-success:hover {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%) !important;
       box-shadow: 0 6px 18px rgba(2, 132, 199, 0.3) !important;
-      transform: translateY(-1px);
+      transform: translateY(-1.5px);
+      color: #ffffff !important;
     }
     .btn-outline-primary {
-      border: 1px solid #0284c7 !important;
-      color: #0284c7 !important;
+      border: 1.5px solid var(--blue) !important;
+      color: var(--blue) !important;
       background: transparent !important;
+      border-radius: 8px;
+      padding: 0.65rem 1.5rem;
+      transition: all 0.25s ease;
     }
     .btn-outline-primary:hover {
       background: #f0f9ff !important;
-      border-color: #0369a1 !important;
-      color: #0369a1 !important;
-      transform: translateY(-1px);
+      border-color: var(--blue-dark) !important;
+      color: var(--blue-dark) !important;
+      transform: translateY(-1.5px);
     }
     .btn-secondary {
       background: #ffffff !important;
@@ -403,6 +488,26 @@
   </style>
 </head>
 <body>
+  <!-- ═══ NAVBAR ═══════════════════════════════════════ -->
+  <nav class="navbar-cw" id="mainNavbar">
+    <a href="/" class="navbar-logo">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="2" width="6" height="20" rx="2" fill="white"/>
+          <rect x="2" y="9" width="20" height="6" rx="2" fill="white"/>
+        </svg>
+      </div>
+      <div class="logo-text-wrap">
+        <span class="logo-name">CureWell</span>
+        <span class="logo-sub">Hospital</span>
+      </div>
+    </a>
+    <div class="navbar-actions">
+      <a href="/patient_login/?action=signup" class="btn-nav-outline" id="navRegisterBtn">Register</a>
+      <a href="/patient_login/" class="btn-nav-solid" id="navLoginBtn">Login</a>
+    </div>
+  </nav>
+
   <!-- Ambient blur blobs for unique premium background aesthetic -->
   <div class="ambient-blob-1"></div>
   <div class="ambient-blob-2"></div>

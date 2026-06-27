@@ -224,23 +224,37 @@ function renderCalendar(selectedDateStr) {
 
 }
 function showSection(sectionId) {
-  // Hide all dashboards
-  document.querySelectorAll('.dashboard').forEach(div => div.style.display = 'none');
-  // Show the requested section
-  const section = document.getElementById(sectionId);
-  if (section) {
-    section.style.display = 'block';
-  } else {
-    console.error("Section not found:", sectionId);
-  }
-  // Extra logic for dashboards
-  if (sectionId === 'patientDashboard') {
-    showPatientNotification();
-    loadPatientAppointments();
-  }
-  if (sectionId === 'receptionDashboard') {
-  renderCalendar(receptionistSelectedDate);
-  loadAppointments();
+  // Hide all dashboards
+  document.querySelectorAll('.dashboard').forEach(div => div.style.display = 'none');
+  // Show the requested section
+  const section = document.getElementById(sectionId);
+  if (section) {
+    section.style.display = 'block';
+  } else {
+    console.error("Section not found:", sectionId);
+  }
+
+  // Hide main navbar on dashboard screens, show on login page
+  const mainNavbar = document.getElementById('mainNavbar');
+  const heroSection = document.querySelector('.hero-section');
+  if (mainNavbar) {
+    if (sectionId === 'receptionDashboard') {
+      mainNavbar.style.display = 'none';
+      if (heroSection) heroSection.style.display = 'none';
+    } else {
+      mainNavbar.style.display = 'flex';
+      if (heroSection) heroSection.style.display = 'block';
+    }
+  }
+
+  // Extra logic for dashboards
+  if (sectionId === 'patientDashboard') {
+    showPatientNotification();
+    loadPatientAppointments();
+  }
+  if (sectionId === 'receptionDashboard') {
+    renderCalendar(receptionistSelectedDate);
+    loadAppointments();
   }
 }
 

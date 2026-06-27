@@ -10,6 +10,28 @@ function showSection(sectionId) {
     console.error("Section not found:", sectionId);
   }
 
+  // Hide main navbar on dashboard screens, show on login/signup pages
+  const mainNavbar = document.getElementById('mainNavbar');
+  if (mainNavbar) {
+    if (sectionId === 'patientDashboard' || sectionId === 'receptionDashboard') {
+      mainNavbar.style.display = 'none';
+    } else {
+      mainNavbar.style.display = 'flex';
+      // Highlight correct active link in navbar
+      const navReg = document.getElementById('navRegisterBtn');
+      const navLog = document.getElementById('navLoginBtn');
+      if (navReg && navLog) {
+        if (sectionId === 'patientSignup') {
+          navReg.style.display = 'none';
+          navLog.style.display = 'inline-block';
+        } else {
+          navReg.style.display = 'inline-block';
+          navLog.style.display = 'none';
+        }
+      }
+    }
+  }
+
   // Extra logic for dashboards
   if (sectionId === 'patientDashboard') {
     showPatientNotification();

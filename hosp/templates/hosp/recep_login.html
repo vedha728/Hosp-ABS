@@ -8,6 +8,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     :root {
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --blue: #0284c7;
+      --blue-dark: #0369a1;
+      --blue-light: #38bdf8;
+      --teal: #0d9488;
+      --white: #ffffff;
+      --grey-50: #f8fafc;
+      --grey-100: #f1f5f9;
+      --grey-300: #cbd5e1;
+      --grey-500: #64748b;
+      --grey-700: #334155;
+      
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --card-border: #e2e8f0;
@@ -24,6 +37,38 @@
       overflow-x: hidden;
       position: relative;
     }
+    /* ─── NAVBAR ─────────────────────────────────────── */
+    .navbar-cw {
+      background: var(--navy);
+      padding: 0 2.5rem;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(2,132,199,0.4);
+    }
+    .logo-text-wrap { display: flex; flex-direction: column; line-height: 1.15; }
+    .logo-name { font-size: 1.55rem; font-weight: 800; color: var(--white); letter-spacing: -0.5px; }
+    .logo-sub  { font-size: 0.8rem; font-weight: 400; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+
     /* Ambient Blur Blobs in background */
     .ambient-blob-1 {
       position: absolute;
@@ -152,6 +197,19 @@
       transform: translateY(-1px);
       color: #ffffff !important;
     }
+    .btn-outline-secondary {
+      border: 1.5px solid var(--grey-300) !important;
+      color: var(--grey-700) !important;
+      border-radius: 8px;
+      padding: 0.5rem 1.5rem;
+      background: transparent !important;
+      font-weight: 600;
+    }
+    .btn-outline-secondary:hover {
+      background: var(--grey-100) !important;
+      border-color: var(--grey-500) !important;
+      color: var(--navy) !important;
+    }
     .alert-info {
       border-radius: 8px;
       background: #f0f9ff;
@@ -185,11 +243,27 @@
   </style>
 </head>
 <body>
+  <!-- ═══ NAVBAR ═══════════════════════════════════════ -->
+  <nav class="navbar-cw" id="mainNavbar">
+    <a href="/" class="navbar-logo">
+      <div class="logo-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="2" width="6" height="20" rx="2" fill="white"/>
+          <rect x="2" y="9" width="20" height="6" rx="2" fill="white"/>
+        </svg>
+      </div>
+      <div class="logo-text-wrap">
+        <span class="logo-name">CureWell</span>
+        <span class="logo-sub">Hospital</span>
+      </div>
+    </a>
+  </nav>
+
   <!-- Ambient blur blobs for unique premium background aesthetic -->
   <div class="ambient-blob-1"></div>
   <div class="ambient-blob-2"></div>
   <div class="hero-section">
-    <div class="alert alert-danger d-inline-block px-4 py-1 mb-3" style="font-size:0.9rem; border-radius:20px;">
+    <div class="alert alert-danger d-inline-block px-4 py-1 mb-3" style="font-size:0.9rem; border-radius:20px; border-color: rgba(220,38,38,0.2); background: rgba(254,226,226,0.5); color: #b91c1c;">
       🔒 Restricted Area — Authorised Staff Only
     </div>
     <h1>CureWell Hospital — Staff Portal</h1>
