@@ -530,7 +530,8 @@ async function loadFeedbacks() {
 }
 
 // Auto-load feedback whenever receptionist dashboard is shown
-const _origShowSection = typeof showSection === 'function' ? showSection : null;
+let dashboardPollInterval = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   // Load feedbacks when dashboard becomes visible
   const dashboard = document.getElementById('receptionDashboard');
@@ -538,6 +539,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver(() => {
       if (dashboard.style.display !== 'none') {
         loadFeedbacks();
+        // Start background polling every 20 seconds
+        if (!dashboardPollInterval) {
+          dashboardPollInterval = setInterval(() => {
+            loadAppointments();
+            loadFeedbacks();
+          }, 20000);
+        }
+      } else {
+        // Stop polling when logged out/hidden
+        if (dashboardPollInterval) {
+          clearInterval(dashboardPollInterval);
+          dashboardPollInterval = null;
+        }
       }
     });
     observer.observe(dashboard, { attributes: true, attributeFilter: ['style'] });
