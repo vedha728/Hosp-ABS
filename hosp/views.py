@@ -343,6 +343,22 @@ def cancel_appointment(request):
             service_name=service
         )
         appointment.delete()
+
+        # Notify hospital staff via email (works across all devices)
+        staff_email = config('RECEPTIONIST_NOTIFY_EMAIL', default=settings.DEFAULT_FROM_EMAIL)
+        subject = 'Appointment Cancelled - CureWell Hospital'
+        message = (
+            f'Notice: A patient has cancelled their appointment.\n\n'
+            f'Patient Email: {patient.email}\n'
+            f'Patient Name: {patient.first_name} {patient.last_name}\n'
+            f'Service: {service}\n'
+            f'Date: {date}\n'
+            f'Time: {time}\n\n'
+            f'Please update the schedule accordingly.\n\n'
+            f'Regards,\nCureWell Hospital System'
+        )
+        send_email_async(subject, message, [staff_email])
+
         return Response({'message': 'Appointment cancelled.'})
     except Appointment.DoesNotExist:
         return Response({'error': 'Appointment not found.'}, status=404)

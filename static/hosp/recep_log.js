@@ -22,12 +22,8 @@ async function handleReceptionLogin(event) {
    const username = document.getElementById('receptionUser').value;
    const password = document.getElementById('receptionPass').value;
    
-   if (passkey !== '7874') {
-     alert('Please enter the correct passkey.');
-     return;
-   }
-   if (!username || !password) {
-     alert('Please enter both username and password.');
+   if (!passkey || !username || !password) {
+     alert('Please fill in all fields.');
      return;
    }
    

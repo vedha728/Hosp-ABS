@@ -588,20 +588,7 @@ async function cancelAppointment(service, date, time) {
 
     if (response.ok) {
       alert(data.message || 'Appointment cancelled.');
-      await loadPatientAppointments(); // Refresh the list after deleting
-
-      // NEW: notify receptionist via localStorage (same browser)
-      const notification = {
-        message: `Patient ${patient.email} cancelled appointment on ${date} at ${time}.`,
-        timestamp: new Date().toISOString()
-      };
-      let receptionistNotifications =
-        JSON.parse(localStorage.getItem('receptionistNotifications')) || [];
-      receptionistNotifications.unshift(notification);
-      localStorage.setItem(
-        'receptionistNotifications',
-        JSON.stringify(receptionistNotifications)
-      );
+      await loadPatientAppointments(); // Refresh the list after cancelling
     } else {
       alert(data.error || 'Could not cancel appointment.');
     }
