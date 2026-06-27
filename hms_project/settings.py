@@ -75,11 +75,11 @@ WSGI_APPLICATION = 'hms_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':'django_vedha',
-        'HOST':'localhost',
-        'USER':'root',
-        'PASSWORD': config('DB_PASSWORD'),
-        'PORT':'3306',
+        'NAME': config('DB_NAME', default='django_vedha'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'USER': config('DB_USER', default='root'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
 
