@@ -313,6 +313,7 @@ def get_appointments(request):
             appointments = []
             for appointment in appointments_qs:
                 appointments.append({
+                    "id": appointment.id,
                     "service": appointment.service_name,
                     "reason": appointment.reason,
                     "date": str(appointment.appointment_date),
@@ -332,16 +333,14 @@ def cancel_appointment(request):
     patient = get_logged_in_patient(request)
     if not patient:
         return Response({'error': 'Not logged in.'}, status=401)
-    date = request.data.get('date')
-    time = request.data.get('time')
-    service = request.data.get('service')
+    appointment_id = request.data.get('id')
+    if not appointment_id:
+        return Response({'error': 'Appointment ID is required.'}, status=400)
     try:
-        appointment = Appointment.objects.get(
-            patient=patient,
-            appointment_date=date,
-            appointment_time=time,
-            service_name=service
-        )
+        appointment = Appointment.objects.get(id=appointment_id, patient=patient)
+        service = appointment.service_name
+        date    = str(appointment.appointment_date)
+        time    = str(appointment.appointment_time)
         appointment.delete()
 
         # Notify hospital staff via email (works across all devices)

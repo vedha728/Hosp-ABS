@@ -400,12 +400,17 @@ async function loadPatientAppointments() {
       const allAppointments = data.appointments;
       const todayStr = new Date().toISOString().split('T')[0];
 
-      // Filter based on selected tab (Upcoming vs Past/Canceled/Rejected)
+      // Filter based on selected tab (Upcoming vs Past)
+      // Upcoming: Confirmed/Pending with a FUTURE date, OR Pending with a PAST date (needs attention)
+      // Past/History: Confirmed on past date, Rejected, Canceled
       const filteredAppointments = allAppointments.filter(app => {
         const date = app.appointment_date || app.date;
         const status = app.status || 'Pending';
-        const isUpcoming = (status === 'Confirmed' || status === 'Pending') && (date >= todayStr);
-        return activeAppointmentTab === 'upcoming' ? isUpcoming : !isUpcoming;
+        const isFutureDate = date >= todayStr;
+        const isPastPending = status === 'Pending' && !isFutureDate;
+        const isUpcoming = (status === 'Confirmed' || status === 'Pending') && isFutureDate;
+        // Past-pending stays in Upcoming tab so patient is aware
+        return activeAppointmentTab === 'upcoming' ? (isUpcoming || isPastPending) : (!isUpcoming && !isPastPending);
       });
 
       document.getElementById('patientAppointments').innerHTML =
@@ -417,11 +422,19 @@ async function loadPatientAppointments() {
               const status = app.status || 'Pending';
               const token = app.token_number || null;
 
+              const appId  = app.id || null;
+
               let statusClass = 'text-muted';
               let statusMessage = '';
+              const isFutureDate = date >= todayStr;
+              const isPastPending = status === 'Pending' && !isFutureDate;
+
               if (status === 'Confirmed') {
                 statusMessage = `Confirmed (Token: ${token || 'Pending'})`;
                 statusClass = 'text-success fw-bold';
+              } else if (isPastPending) {
+                statusMessage = '⚠️ No response received. Please contact the clinic.';
+                statusClass = 'text-danger fw-semibold';
               } else if (status === 'Pending') {
                 statusMessage = 'Awaiting receptionist confirmation.';
                 statusClass = 'text-warning fw-semibold';
@@ -454,9 +467,9 @@ async function loadPatientAppointments() {
               }
 
               let cancelBtnHTML = '';
-              if (date >= todayStr) {
+              if (isFutureDate && appId) {
                 if (status === 'Pending') {
-                  cancelBtnHTML = `<button onclick="cancelAppointment('${service}', '${date}', '${time}')" class="btn btn-sm btn-outline-danger mt-2">Cancel</button>`;
+                  cancelBtnHTML = `<button onclick="cancelAppointment(${appId}, '${service}', '${date}', '${time}')" class="btn btn-sm btn-outline-danger mt-2">Cancel</button>`;
                 } else if (status === 'Confirmed') {
                   cancelBtnHTML = `<button class="btn btn-sm btn-outline-secondary mt-2" disabled title="Confirmed appointments cannot be canceled online. Please contact the clinic.">Cancel</button>`;
                 }
@@ -563,11 +576,10 @@ async function bookAppointment(event) {
 }
 document.addEventListener('DOMContentLoaded', loadPatientAppointments);
 
-async function cancelAppointment(service, date, time) {
+async function cancelAppointment(id, service, date, time) {
   const confirmCancel = confirm(`Are you sure you want to cancel your ${service} appointment on ${date} at ${time}?`);
   if (!confirmCancel) return;
 
-  const patient = JSON.parse(localStorage.getItem('currentPatient'));
   const csrftoken = getCookie('csrftoken');
   try {
     const response = await fetch('/api/cancel-appointment/', {
@@ -576,19 +588,14 @@ async function cancelAppointment(service, date, time) {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken
       },
-      body: JSON.stringify({
-        service: service,
-        date: date,
-        time: time
-        // email removed — server reads from session
-      })
+      body: JSON.stringify({ id: id })
     });
 
     const data = await response.json();
 
     if (response.ok) {
       alert(data.message || 'Appointment cancelled.');
-      await loadPatientAppointments(); // Refresh the list after cancelling
+      await loadPatientAppointments();
     } else {
       alert(data.error || 'Could not cancel appointment.');
     }
