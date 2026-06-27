@@ -1,4 +1,3 @@
-console.log("recep_log.js loaded");
 let appointments = [];
 let calendarYear = (new Date()).getFullYear();
 let calendarMonth = (new Date()).getMonth();
@@ -18,8 +17,7 @@ function getCookie(name) {
     return cookieValue;
 }
 async function handleReceptionLogin(event) {
-   event.preventDefault();
-   console.log('Receptionist login function triggered');
+ event.preventDefault();
    const passkey = document.getElementById('receptionPasskey').value;
    const username = document.getElementById('receptionUser').value;
    const password = document.getElementById('receptionPass').value;
@@ -35,31 +33,24 @@ async function handleReceptionLogin(event) {
    
    const loginBtn = document.getElementById('receptionLoginBtn');
    loginBtn.disabled = true;
-   loginBtn.innerHTML = 'Logging in...';
+   loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging in...';
   try {
       const response = await fetch('/api/reception-login/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passkey, username, password })
     });
-    console.log('Response status:', response.status);
     if (response.ok) {
       const data = await response.json();
-      console.log('Login success data:', data);
-      alert('Receptionist logged in successfully');
-      console.log('Before showing dashboard');
       showSection('receptionDashboard');
-      console.log('After showing dashboard');
-      renderCalendar(receptionistSelectedDate); // draw calendar
-      loadAppointments();                        // fetch from backend
+      renderCalendar(receptionistSelectedDate);
+      loadAppointments();
       loadReceptionistNotifications();
     } else {
       const error = await response.json();
-      console.log('Login failed error:', error);
       alert("Login failed: " + (error.error || "Unknown error"));
     }
   } catch (err) {
-    console.log('Error during login:', err);
     alert("Error: " + err.message);
   } finally {
     loginBtn.disabled = false;
@@ -388,7 +379,6 @@ async function confirmAppointment(appointmentId, btnElement) {
     });
 
     const data = await res.json();
-    console.log('update-appointment-status response:', data);
 
     if (!res.ok) {
       alert('Error updating appointment: ' + (data.error || 'Unknown error'));
@@ -472,7 +462,6 @@ async function submitRejection(appointmentId, reason) {
     });
 
     const data = await res.json();
-    console.log('receptionist-reject response:', data);
 
     if (!res.ok) {
       alert('Error rejecting appointment: ' + (data.error || 'Unknown error'));

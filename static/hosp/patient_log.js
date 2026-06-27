@@ -216,6 +216,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 function populateProfileForm(profile) {
+  // Remove skeleton shimmer from all profile fields
+  ['firstName', 'lastName', 'age', 'bloodGroup', 'mobile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('skeleton');
+  });
+
   document.getElementById('firstName').value = profile.first_name || '';
   document.getElementById('lastName').value = profile.last_name || '';
   document.getElementById('age').value = profile.age || '';
@@ -252,7 +258,11 @@ async function fetchPatientProfile(email) {
       // Call a function to populate your profile form inputs with this data
       populateProfileForm(profile);
     } else {
-      // No profile found — keep profile inputs empty and editable
+      // No profile found — remove skeleton and keep inputs editable
+      ['firstName', 'lastName', 'age', 'bloodGroup', 'mobile'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('skeleton');
+      });
       setProfileFieldsReadonly(false);
       document.getElementById('saveProfileBtn').disabled = false;
       document.getElementById('editProfileBtn').disabled = true;

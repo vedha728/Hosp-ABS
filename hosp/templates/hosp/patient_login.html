@@ -381,6 +381,25 @@
     .table td, .table th {
       border-color: var(--card-border) !important;
     }
+
+    /* Skeleton loader */
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 6px;
+      color: transparent !important;
+      pointer-events: none;
+      user-select: none;
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+    }
+    .skeleton::placeholder { color: transparent; }
   </style>
 </head>
 <body>
@@ -480,7 +499,12 @@
                       </li>
                     </ul>
                 </div>
-                <div id="patientAppointments"></div>
+                <div id="patientAppointments">
+                  <div class="d-flex align-items-center gap-2 text-muted py-3">
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    <span>Loading appointments...</span>
+                  </div>
+                </div>
             </div>
           </div>
 
@@ -541,29 +565,29 @@
               <form onsubmit="saveProfile(event)">
                 <div class="mb-3">
                   <label for="firstName" class="form-label small fw-semibold">First Name</label>
-                  <input type="text" id="firstName" autocomplete="given-name" class="form-control" placeholder="First Name" required>
+                  <input type="text" id="firstName" autocomplete="given-name" class="form-control skeleton" placeholder="First Name" required>
                 </div>
                 <div class="mb-3">
                   <label for="lastName" class="form-label small fw-semibold">Last Name</label>
-                  <input type="text" id="lastName" autocomplete="family-name" class="form-control" placeholder="Last Name" required>
-                </div> 
+                  <input type="text" id="lastName" autocomplete="family-name" class="form-control skeleton" placeholder="Last Name" required>
+                </div>
                 <div class="mb-3">
                   <label for="age" class="form-label small fw-semibold">Age</label>
-                  <input type="number" id="age" class="form-control" placeholder="Age" required>
+                  <input type="number" id="age" class="form-control skeleton" placeholder="Age" required>
                 </div>
                 <div class="mb-3">
                   <label for="bloodGroup" class="form-label small fw-semibold">Blood Group</label>
-                  <select id="bloodGroup" class="form-select" required>
+                  <select id="bloodGroup" class="form-select skeleton" required>
                     <option value="">Blood Group</option>
                     <option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option><option>A1+</option><option>A1-</option><option>A2+</option><option>A2-</option><option>A1B+</option><option>A1B-</option><option>A2B+</option><option>A2B-</option>
                   </select>
                 </div>
                 <div class="mb-3">
                   <label for="mobile" class="form-label small fw-semibold">Mobile Number</label>
-                  <input type="tel" id="mobile" class="form-control" placeholder="Mobile Number" required>
+                  <input type="tel" id="mobile" class="form-control skeleton" placeholder="Mobile Number" required>
                 </div>
                 <div class="d-flex justify-content-center gap-2 mt-4">
-                  <button type="button" id="editProfileBtn" class="btn btn-outline-primary px-4" onclick="enableProfileEditing()">Edit Profile</button>
+                  <button type="button" id="editProfileBtn" class="btn btn-outline-primary px-4" onclick="enableProfileEditing()" disabled>Edit Profile</button>
                   <button type="submit" id="saveProfileBtn" class="btn btn-success px-4" disabled>Save Profile</button>
                 </div>
               </form>
